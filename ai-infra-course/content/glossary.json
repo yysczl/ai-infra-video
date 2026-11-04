@@ -1,0 +1,1762 @@
+[
+  {
+    "name": "AI Infra",
+    "fullName": "Artificial Intelligence Infrastructure",
+    "chinese": "人工智能基础设施",
+    "grade": "B",
+    "domain": "系统全景",
+    "definition": "支撑 AI 开发、训练、推理和服务运行的硬件与软件系统。",
+    "problem": "让模型工作负载高效可靠运行",
+    "related": "GPU、Model Serving、Training",
+    "sources": [
+      "vllm",
+      "distributed",
+      "k8s"
+    ]
+  },
+  {
+    "name": "CPU",
+    "fullName": "Central Processing Unit",
+    "chinese": "中央处理器",
+    "grade": "B",
+    "domain": "硬件",
+    "definition": "执行通用指令、控制与计算的处理器，也支持并行和向量计算。",
+    "problem": "通用程序执行与复杂控制",
+    "related": "GPU、Parallel Computing",
+    "sources": [
+      "cuda_legacy"
+    ]
+  },
+  {
+    "name": "GPU",
+    "fullName": "Graphics Processing Unit",
+    "chinese": "图形处理器",
+    "grade": "A",
+    "domain": "硬件",
+    "definition": "适合大规模并行数据处理的处理器，已广泛用于机器学习。",
+    "problem": "提高可并行计算的吞吐",
+    "related": "CPU、Kernel、Tensor Core",
+    "sources": [
+      "cuda_legacy",
+      "gpu"
+    ]
+  },
+  {
+    "name": "NPU",
+    "fullName": "Neural Processing Unit",
+    "chinese": "神经网络处理单元",
+    "grade": "B",
+    "domain": "硬件",
+    "definition": "针对神经网络相关运算设计的一类处理器。",
+    "problem": "提高特定 AI 工作负载的执行效率",
+    "related": "GPU、Tensor",
+    "sources": [
+      "npu"
+    ]
+  },
+  {
+    "name": "HBM",
+    "fullName": "High Bandwidth Memory",
+    "chinese": "高带宽存储器",
+    "grade": "B",
+    "domain": "硬件",
+    "definition": "通过堆叠等设计提供高带宽的一类存储器。",
+    "problem": "缓解数据供应带宽限制",
+    "related": "VRAM、Memory Bandwidth",
+    "sources": [
+      "cuda",
+      "flash"
+    ]
+  },
+  {
+    "name": "VRAM",
+    "fullName": "Video Random Access Memory",
+    "chinese": "显存",
+    "grade": "A",
+    "domain": "硬件",
+    "definition": "通常指 GPU 使用的设备内存；具体硬件形态不必相同。",
+    "problem": "容纳权重、缓存和临时数据",
+    "related": "HBM、OOM、KV Cache",
+    "sources": [
+      "cuda",
+      "cache"
+    ]
+  },
+  {
+    "name": "Memory Bandwidth",
+    "fullName": "—",
+    "chinese": "内存带宽",
+    "grade": "A",
+    "domain": "硬件性能",
+    "definition": "单位时间可传送数据的能力或实测速率。",
+    "problem": "衡量数据供给能力",
+    "related": "Memory-bound、HBM",
+    "sources": [
+      "cuda",
+      "ncu"
+    ]
+  },
+  {
+    "name": "Parallel Computing",
+    "fullName": "—",
+    "chinese": "并行计算",
+    "grade": "A",
+    "domain": "计算基础",
+    "definition": "让多个计算工作同时推进的执行方式。",
+    "problem": "缩短合适任务的处理时间或提高吞吐",
+    "related": "GPU、DP、TP",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "Tensor Core",
+    "fullName": "—",
+    "chinese": "张量计算单元",
+    "grade": "B",
+    "domain": "硬件",
+    "definition": "部分 NVIDIA GPU 中用于支持格式矩阵计算的专门单元。",
+    "problem": "加速适合的矩阵运算",
+    "related": "GEMM、GPU",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "Tensor",
+    "fullName": "—",
+    "chinese": "张量",
+    "grade": "B",
+    "domain": "模型计算",
+    "definition": "机器学习框架中常用的多维数组数据表示。",
+    "problem": "统一表示输入、参数和中间结果",
+    "related": "PyTorch、Embedding",
+    "sources": [
+      "pytorch"
+    ]
+  },
+  {
+    "name": "CUDA",
+    "fullName": "Compute Unified Device Architecture（历史展开名）",
+    "chinese": "CUDA 并行计算平台",
+    "grade": "B",
+    "domain": "计算软件",
+    "definition": "NVIDIA 提供的并行计算平台与编程模型。",
+    "problem": "组织 NVIDIA GPU 上的并行程序",
+    "related": "Kernel、Triton、cuBLAS",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "Triton",
+    "fullName": "—",
+    "chinese": "Triton 语言与编译器",
+    "grade": "B",
+    "domain": "计算软件",
+    "definition": "提供 Python 风格开发环境的并行编程语言和编译器。",
+    "problem": "提高自定义 GPU 内核的开发效率",
+    "related": "CUDA、Kernel",
+    "sources": [
+      "triton"
+    ]
+  },
+  {
+    "name": "Operator",
+    "fullName": "—",
+    "chinese": "算子",
+    "grade": "B",
+    "domain": "模型计算",
+    "definition": "表示某项数学运算或张量变换的计算单元。",
+    "problem": "表达模型要完成的运算",
+    "related": "Kernel、GEMM",
+    "sources": [
+      "pytorch"
+    ]
+  },
+  {
+    "name": "Kernel",
+    "fullName": "—",
+    "chinese": "计算内核",
+    "grade": "B",
+    "domain": "计算软件",
+    "definition": "在设备上执行具体计算任务的程序；本课不是指操作系统内核。",
+    "problem": "实现算子的实际执行",
+    "related": "CUDA、Operator",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "CUDA Kernel",
+    "fullName": "—",
+    "chinese": "CUDA 计算内核",
+    "grade": "B",
+    "domain": "计算软件",
+    "definition": "CUDA 环境中在 GPU 上执行的计算内核。",
+    "problem": "把并行工作交给 GPU",
+    "related": "Kernel、Thread、Block",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "GPU Operator",
+    "fullName": "—",
+    "chinese": "GPU 算子",
+    "grade": "B",
+    "domain": "计算软件",
+    "definition": "具有 GPU 执行实现的数学操作或张量运算。",
+    "problem": "在 GPU 上完成模型运算",
+    "related": "Operator、Kernel",
+    "sources": [
+      "pytorch",
+      "cuda"
+    ]
+  },
+  {
+    "name": "GEMM",
+    "fullName": "General Matrix Multiply",
+    "chinese": "通用矩阵乘法",
+    "grade": "B",
+    "domain": "计算软件",
+    "definition": "通常指包含矩阵乘积及可选缩放、累加的计算形式。",
+    "problem": "高效实现模型中的矩阵运算",
+    "related": "cuBLAS、Tensor Core",
+    "sources": [
+      "cublas"
+    ]
+  },
+  {
+    "name": "cuBLAS",
+    "fullName": "CUDA Basic Linear Algebra Subprograms",
+    "chinese": "CUDA 线性代数库",
+    "grade": "B",
+    "domain": "计算软件",
+    "definition": "提供 GPU 加速 BLAS 等线性代数接口的 NVIDIA 库。",
+    "problem": "复用优化的矩阵和向量计算",
+    "related": "CUDA、GEMM",
+    "sources": [
+      "cublas"
+    ]
+  },
+  {
+    "name": "cuDNN",
+    "fullName": "CUDA Deep Neural Network library",
+    "chinese": "CUDA 深度神经网络库",
+    "grade": "B",
+    "domain": "计算软件",
+    "definition": "提供优化的深度学习计算组件的 NVIDIA 库。",
+    "problem": "复用深度学习基础运算实现",
+    "related": "CUDA、PyTorch",
+    "sources": [
+      "cudnn"
+    ]
+  },
+  {
+    "name": "Kernel Fusion",
+    "fullName": "—",
+    "chinese": "内核融合",
+    "grade": "B",
+    "domain": "计算优化",
+    "definition": "将多个操作合并到更少内核中执行的一类技术。",
+    "problem": "减少启动和中间数据读写开销",
+    "related": "Kernel、Memory-bound",
+    "sources": [
+      "cuda",
+      "cudnn"
+    ]
+  },
+  {
+    "name": "Compute-bound",
+    "fullName": "—",
+    "chinese": "计算受限",
+    "grade": "B",
+    "domain": "性能分析",
+    "definition": "主要受到计算执行能力限制的工作状态。",
+    "problem": "识别算力瓶颈",
+    "related": "Memory-bound、Profiling",
+    "sources": [
+      "ncu"
+    ]
+  },
+  {
+    "name": "Memory-bound",
+    "fullName": "—",
+    "chinese": "访存受限",
+    "grade": "B",
+    "domain": "性能分析",
+    "definition": "主要受到内存访问带宽或延迟等限制的工作状态。",
+    "problem": "识别数据访问瓶颈",
+    "related": "Compute-bound、Memory Bandwidth",
+    "sources": [
+      "ncu"
+    ]
+  },
+  {
+    "name": "FlashAttention",
+    "fullName": "—",
+    "chinese": "FlashAttention 算法",
+    "grade": "B",
+    "domain": "计算优化",
+    "definition": "通过分块与片上数据复用减少 HBM 读写的精确 Attention 算法系列。",
+    "problem": "改善 Attention 内存与计算效率",
+    "related": "Attention、PagedAttention",
+    "sources": [
+      "flash"
+    ]
+  },
+  {
+    "name": "LLM",
+    "fullName": "Large Language Model",
+    "chinese": "大语言模型",
+    "grade": "B",
+    "domain": "模型基础",
+    "definition": "在大量数据上训练、具有较大规模的语言模型类别。",
+    "problem": "建模和生成语言等序列",
+    "related": "Transformer、Token",
+    "sources": [
+      "attention",
+      "vllm"
+    ]
+  },
+  {
+    "name": "Transformer",
+    "fullName": "—",
+    "chinese": "Transformer 架构",
+    "grade": "B",
+    "domain": "模型基础",
+    "definition": "以注意力等模块组织序列计算的神经网络架构。",
+    "problem": "学习序列位置间的信息关系",
+    "related": "Attention、LLM",
+    "sources": [
+      "attention"
+    ]
+  },
+  {
+    "name": "Attention",
+    "fullName": "—",
+    "chinese": "注意力机制",
+    "grade": "B",
+    "domain": "模型基础",
+    "definition": "根据查询与键的关系，对值等信息进行加权组合的机制。",
+    "problem": "根据上下文动态组合信息",
+    "related": "Query、Key、Value",
+    "sources": [
+      "attention"
+    ]
+  },
+  {
+    "name": "Token",
+    "fullName": "—",
+    "chinese": "词元",
+    "grade": "B",
+    "domain": "模型基础",
+    "definition": "分词器与模型处理的离散序列单位，不必对应一个字或单词。",
+    "problem": "把输入转换为模型可处理的离散表示",
+    "related": "Tokenization、Embedding",
+    "sources": [
+      "cache"
+    ]
+  },
+  {
+    "name": "Tokenization",
+    "fullName": "—",
+    "chinese": "分词或词元化",
+    "grade": "B",
+    "domain": "模型基础",
+    "definition": "将文本等输入转换为 Token 序列或 ID 的过程。",
+    "problem": "连接原始输入与模型表示",
+    "related": "Token、Prompt",
+    "sources": [
+      "cache"
+    ]
+  },
+  {
+    "name": "Embedding",
+    "fullName": "—",
+    "chinese": "嵌入表示",
+    "grade": "B",
+    "domain": "模型基础",
+    "definition": "把离散标识映射为向量的表示或变换。",
+    "problem": "使离散输入进入数值计算",
+    "related": "Token、Tensor",
+    "sources": [
+      "attention",
+      "pytorch"
+    ]
+  },
+  {
+    "name": "Query",
+    "fullName": "—",
+    "chinese": "查询向量",
+    "grade": "B",
+    "domain": "模型基础",
+    "definition": "Attention 中用于与 Key 计算相关性的向量。",
+    "problem": "决定当前如何关注上下文",
+    "related": "Key、Value",
+    "sources": [
+      "attention",
+      "cache"
+    ]
+  },
+  {
+    "name": "Key",
+    "fullName": "—",
+    "chinese": "键向量",
+    "grade": "B",
+    "domain": "模型基础",
+    "definition": "Attention 中与 Query 参与匹配计算的向量。",
+    "problem": "提供可比较的上下文表示",
+    "related": "Query、Value、KV Cache",
+    "sources": [
+      "attention",
+      "cache"
+    ]
+  },
+  {
+    "name": "Value",
+    "fullName": "—",
+    "chinese": "值向量",
+    "grade": "B",
+    "domain": "模型基础",
+    "definition": "Attention 中依据权重被组合的信息向量。",
+    "problem": "提供上下文信息内容",
+    "related": "Key、Attention",
+    "sources": [
+      "attention",
+      "cache"
+    ]
+  },
+  {
+    "name": "PyTorch",
+    "fullName": "—",
+    "chinese": "PyTorch 框架",
+    "grade": "B",
+    "domain": "模型框架",
+    "definition": "提供张量计算、自动求导与模型开发能力的机器学习框架。",
+    "problem": "表达、训练和执行模型",
+    "related": "Autograd、Tensor",
+    "sources": [
+      "pytorch"
+    ]
+  },
+  {
+    "name": "Training",
+    "fullName": "—",
+    "chinese": "训练",
+    "grade": "B",
+    "domain": "训练系统",
+    "definition": "利用数据和优化过程调整模型参数的过程。",
+    "problem": "学习符合目标的模型参数",
+    "related": "Autograd、Inference",
+    "sources": [
+      "pytorch"
+    ]
+  },
+  {
+    "name": "Inference",
+    "fullName": "—",
+    "chinese": "推理",
+    "grade": "B",
+    "domain": "推理系统",
+    "definition": "使用模型参数处理新输入并产生预测或输出的过程。",
+    "problem": "把模型能力用于新任务",
+    "related": "Training、Decode",
+    "sources": [
+      "pytorch",
+      "vllm"
+    ]
+  },
+  {
+    "name": "Distributed Training",
+    "fullName": "—",
+    "chinese": "分布式训练",
+    "grade": "B",
+    "domain": "训练系统",
+    "definition": "由多个设备或进程协作完成模型训练。",
+    "problem": "扩展训练规模与速度",
+    "related": "DP、TP、PP",
+    "sources": [
+      "distributed"
+    ]
+  },
+  {
+    "name": "DP",
+    "fullName": "Data Parallelism",
+    "chinese": "数据并行",
+    "grade": "B",
+    "domain": "分布式计算",
+    "definition": "多个模型副本处理不同数据；典型训练需要同步更新信息。",
+    "problem": "扩展数据处理规模",
+    "related": "Distributed Training、AllReduce",
+    "sources": [
+      "distributed"
+    ]
+  },
+  {
+    "name": "TP",
+    "fullName": "Tensor Parallelism",
+    "chinese": "张量并行",
+    "grade": "B",
+    "domain": "分布式计算",
+    "definition": "把张量及其运算切分到多个设备协作执行。",
+    "problem": "分担单模型存储与计算",
+    "related": "PP、Model Parallelism",
+    "sources": [
+      "distributed"
+    ]
+  },
+  {
+    "name": "PP",
+    "fullName": "Pipeline Parallelism",
+    "chinese": "流水线并行",
+    "grade": "B",
+    "domain": "分布式计算",
+    "definition": "把模型阶段分配到不同设备并安排工作流水推进。",
+    "problem": "利用多设备处理分阶段模型",
+    "related": "TP、Distributed Training",
+    "sources": [
+      "distributed"
+    ]
+  },
+  {
+    "name": "DeepSpeed",
+    "fullName": "—",
+    "chinese": "DeepSpeed 系统",
+    "grade": "B",
+    "domain": "训练与推理",
+    "definition": "面向大规模深度学习训练和推理的优化系统。",
+    "problem": "降低大模型执行的资源与系统负担",
+    "related": "ZeRO、PyTorch",
+    "sources": [
+      "deepspeed"
+    ]
+  },
+  {
+    "name": "Megatron-LM",
+    "fullName": "—",
+    "chinese": "Megatron-LM 项目",
+    "grade": "B",
+    "domain": "训练系统",
+    "definition": "用于大规模 Transformer 模型训练的研究与工程项目。",
+    "problem": "组织多设备模型训练",
+    "related": "TP、PP",
+    "sources": [
+      "megatron"
+    ]
+  },
+  {
+    "name": "Inference Engine",
+    "fullName": "—",
+    "chinese": "推理引擎",
+    "grade": "B",
+    "domain": "推理系统",
+    "definition": "组织模型推理执行的运行系统，常涉及调度、缓存与计算后端。",
+    "problem": "高效执行推理工作",
+    "related": "Model Serving、Worker",
+    "sources": [
+      "vllm"
+    ]
+  },
+  {
+    "name": "Model Serving",
+    "fullName": "—",
+    "chinese": "模型服务",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "将模型能力持续提供给调用方的运行与服务过程。",
+    "problem": "把模型变成可调用能力",
+    "related": "API、Inference Engine",
+    "sources": [
+      "vllm",
+      "ray"
+    ]
+  },
+  {
+    "name": "vLLM",
+    "fullName": "—",
+    "chinese": "vLLM 推理与服务框架",
+    "grade": "B",
+    "domain": "推理系统",
+    "definition": "面向语言模型等模型的高效推理和服务项目。",
+    "problem": "组织请求执行与缓存管理",
+    "related": "PagedAttention、Continuous Batching",
+    "sources": [
+      "vllm"
+    ]
+  },
+  {
+    "name": "SGLang",
+    "fullName": "—",
+    "chinese": "SGLang 推理框架",
+    "grade": "B",
+    "domain": "推理系统",
+    "definition": "提供大语言与多模态模型推理服务能力的框架。",
+    "problem": "高效服务模型工作负载",
+    "related": "Prefix Caching、Model Serving",
+    "sources": [
+      "sglang"
+    ]
+  },
+  {
+    "name": "TensorRT-LLM",
+    "fullName": "TensorRT Large Language Models",
+    "chinese": "TensorRT 大模型推理工具体系",
+    "grade": "B",
+    "domain": "推理系统",
+    "definition": "NVIDIA 提供的大语言模型推理优化软件体系。",
+    "problem": "优化受支持硬件与模型上的推理",
+    "related": "Inference Engine、Quantization",
+    "sources": [
+      "trt"
+    ]
+  },
+  {
+    "name": "API Server",
+    "fullName": "Application Programming Interface Server",
+    "chinese": "接口服务端",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "接收、处理并响应程序接口调用的服务组件。",
+    "problem": "为调用方提供模型入口",
+    "related": "API、Scheduler",
+    "sources": [
+      "vllm"
+    ]
+  },
+  {
+    "name": "Scheduler",
+    "fullName": "—",
+    "chinese": "调度器",
+    "grade": "B",
+    "domain": "推理系统",
+    "definition": "根据资源和策略选择要执行的工作。",
+    "problem": "控制请求排队与组批",
+    "related": "Continuous Batching、Worker",
+    "sources": [
+      "orca",
+      "vllm"
+    ]
+  },
+  {
+    "name": "Worker",
+    "fullName": "—",
+    "chinese": "工作执行单元",
+    "grade": "B",
+    "domain": "分布式系统",
+    "definition": "实际承担指定计算任务的进程或逻辑组件，含义依系统而定。",
+    "problem": "执行调度分配的工作",
+    "related": "Scheduler、Ray",
+    "sources": [
+      "vllm",
+      "raycore"
+    ]
+  },
+  {
+    "name": "Prompt",
+    "fullName": "—",
+    "chinese": "提示输入",
+    "grade": "B",
+    "domain": "推理系统",
+    "definition": "提交给模型的输入内容，可能由系统消息、历史和当前问题构成。",
+    "problem": "规定生成所依据的上下文",
+    "related": "Tokenization、Prefill",
+    "sources": [
+      "cache"
+    ]
+  },
+  {
+    "name": "Prefill",
+    "fullName": "—",
+    "chinese": "预填充阶段",
+    "grade": "A",
+    "domain": "推理系统",
+    "definition": "处理已有提示序列并建立后续状态的阶段，通常可据此采样首个输出。",
+    "problem": "准备输入上下文和初始缓存",
+    "related": "Decode、KV Cache",
+    "sources": [
+      "cache",
+      "vllm"
+    ]
+  },
+  {
+    "name": "Decode",
+    "fullName": "—",
+    "chinese": "解码生成阶段",
+    "grade": "A",
+    "domain": "推理系统",
+    "definition": "在已有上下文状态基础上继续生成输出的阶段。",
+    "problem": "持续生成新的 Token",
+    "related": "Prefill、Autoregressive Generation",
+    "sources": [
+      "cache"
+    ]
+  },
+  {
+    "name": "Autoregressive Generation",
+    "fullName": "—",
+    "chinese": "自回归生成",
+    "grade": "B",
+    "domain": "模型推理",
+    "definition": "依据已有序列逐步生成后续内容的方式。",
+    "problem": "生成有顺序依赖的输出",
+    "related": "Decode、Token",
+    "sources": [
+      "cache"
+    ]
+  },
+  {
+    "name": "Streaming Output",
+    "fullName": "—",
+    "chinese": "流式输出",
+    "grade": "B",
+    "domain": "模型服务",
+    "definition": "在整个结果完成前逐步向调用方发送已生成内容。",
+    "problem": "减少用户看到首段结果的等待",
+    "related": "TTFT、API",
+    "sources": [
+      "vllm"
+    ]
+  },
+  {
+    "name": "KV Cache",
+    "fullName": "Key Value Cache",
+    "chinese": "键值缓存",
+    "grade": "A",
+    "domain": "推理系统",
+    "definition": "保存模型各层历史位置的 Key 和 Value 等相关状态供后续使用。",
+    "problem": "减少自回归生成的重复历史计算",
+    "related": "Decode、PagedAttention",
+    "sources": [
+      "cache",
+      "paged"
+    ]
+  },
+  {
+    "name": "Context Length",
+    "fullName": "—",
+    "chinese": "上下文长度",
+    "grade": "A",
+    "domain": "推理系统",
+    "definition": "模型本次处理或允许处理的上下文 Token 数；统计口径需说明。",
+    "problem": "约束信息范围与资源预算",
+    "related": "Token、KV Cache",
+    "sources": [
+      "cache"
+    ]
+  },
+  {
+    "name": "PagedAttention",
+    "fullName": "—",
+    "chinese": "分页注意力机制",
+    "grade": "A",
+    "domain": "推理系统",
+    "definition": "按块组织 KV Cache，并通过映射访问不必连续的物理块的机制。",
+    "problem": "降低缓存管理中的空间浪费",
+    "related": "KV Cache、Block Table",
+    "sources": [
+      "paged"
+    ]
+  },
+  {
+    "name": "KV Block",
+    "fullName": "Key Value Block",
+    "chinese": "键值缓存块",
+    "grade": "B",
+    "domain": "推理内存",
+    "definition": "容纳一定数量 Token 的 K/V 状态的管理单位。",
+    "problem": "实现缓存分块分配与回收",
+    "related": "PagedAttention、Physical Block",
+    "sources": [
+      "paged"
+    ]
+  },
+  {
+    "name": "Logical Block",
+    "fullName": "—",
+    "chinese": "逻辑块",
+    "grade": "B",
+    "domain": "推理内存",
+    "definition": "按请求序列顺序定义的缓存块。",
+    "problem": "保持逻辑顺序并映射到物理存储",
+    "related": "Physical Block、Block Table",
+    "sources": [
+      "paged"
+    ]
+  },
+  {
+    "name": "Physical Block",
+    "fullName": "—",
+    "chinese": "物理块",
+    "grade": "B",
+    "domain": "推理内存",
+    "definition": "在物理缓存池中实际存放 KV 数据的块。",
+    "problem": "提供可分配的实际存储空间",
+    "related": "Logical Block、KV Block",
+    "sources": [
+      "paged"
+    ]
+  },
+  {
+    "name": "Block Table",
+    "fullName": "—",
+    "chinese": "块映射表",
+    "grade": "B",
+    "domain": "推理内存",
+    "definition": "记录逻辑缓存块到物理缓存块位置的映射结构。",
+    "problem": "让计算找到正确缓存数据",
+    "related": "PagedAttention、Logical Block",
+    "sources": [
+      "paged"
+    ]
+  },
+  {
+    "name": "Batching",
+    "fullName": "—",
+    "chinese": "批处理",
+    "grade": "B",
+    "domain": "计算调度",
+    "definition": "将多个数据项或请求组织在一起执行的方式。",
+    "problem": "利用批量计算提高效率",
+    "related": "Batch Size、Continuous Batching",
+    "sources": [
+      "orca"
+    ]
+  },
+  {
+    "name": "Static Batching",
+    "fullName": "—",
+    "chinese": "静态批处理",
+    "grade": "B",
+    "domain": "推理调度",
+    "definition": "一次批次的请求集合固定、通常整批结束后才接入下一批的方案。",
+    "problem": "提供简单的批量执行组织",
+    "related": "Batching、Continuous Batching",
+    "sources": [
+      "orca"
+    ]
+  },
+  {
+    "name": "Continuous Batching",
+    "fullName": "—",
+    "chinese": "连续批处理",
+    "grade": "A",
+    "domain": "推理调度",
+    "definition": "在迭代边界动态调整参与请求集合的调度方式。",
+    "problem": "减少请求长短不同引起的无效等待",
+    "related": "Scheduler、KV Cache",
+    "sources": [
+      "orca",
+      "vllm"
+    ]
+  },
+  {
+    "name": "Prefix Caching",
+    "fullName": "—",
+    "chinese": "前缀缓存",
+    "grade": "B",
+    "domain": "推理优化",
+    "definition": "复用满足模型、配置及前缀匹配条件的已计算前缀状态。",
+    "problem": "减少相同前缀的重复 Prefill 工作",
+    "related": "KV Cache、Prefill",
+    "sources": [
+      "prefix"
+    ]
+  },
+  {
+    "name": "Quantization",
+    "fullName": "—",
+    "chinese": "量化",
+    "grade": "B",
+    "domain": "模型优化",
+    "definition": "使用较低精度的数值表示来近似模型中的部分数值。",
+    "problem": "减少存储、搬运并可能改善计算效率",
+    "related": "FP16、INT4、Model Parallelism",
+    "sources": [
+      "quant"
+    ]
+  },
+  {
+    "name": "Model Parallelism",
+    "fullName": "—",
+    "chinese": "模型并行",
+    "grade": "B",
+    "domain": "分布式计算",
+    "definition": "把一个模型的部分状态或计算分配到多个设备。",
+    "problem": "分担单模型的容量与计算需求",
+    "related": "TP、PP、Quantization",
+    "sources": [
+      "distributed"
+    ]
+  },
+  {
+    "name": "API",
+    "fullName": "Application Programming Interface",
+    "chinese": "应用编程接口",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "规定程序间怎样请求功能与交换数据的接口。",
+    "problem": "让调用方访问模型能力",
+    "related": "API Server、Model Serving",
+    "sources": [
+      "vllm"
+    ]
+  },
+  {
+    "name": "Docker",
+    "fullName": "—",
+    "chinese": "Docker 平台",
+    "grade": "B",
+    "domain": "部署工具",
+    "definition": "用于构建、分发和运行容器化应用的软件平台。",
+    "problem": "交付可重复使用的应用环境",
+    "related": "Container、Container Image",
+    "sources": [
+      "docker"
+    ]
+  },
+  {
+    "name": "Container",
+    "fullName": "—",
+    "chinese": "容器",
+    "grade": "B",
+    "domain": "部署工具",
+    "definition": "在隔离环境中运行应用的实例，通常共享宿主机内核。",
+    "problem": "隔离运行环境并便于部署",
+    "related": "Docker、Container Image",
+    "sources": [
+      "docker"
+    ]
+  },
+  {
+    "name": "Container Image",
+    "fullName": "—",
+    "chinese": "容器镜像",
+    "grade": "B",
+    "domain": "部署工具",
+    "definition": "用于创建容器的文件系统与配置模板。",
+    "problem": "复用与分发运行环境",
+    "related": "Container、Docker",
+    "sources": [
+      "docker"
+    ]
+  },
+  {
+    "name": "Kubernetes",
+    "fullName": "—",
+    "chinese": "Kubernetes 容器编排系统",
+    "grade": "B",
+    "domain": "平台系统",
+    "definition": "管理容器化工作负载并维持声明期望状态的平台。",
+    "problem": "调度、恢复与扩展容器工作负载",
+    "related": "K8s、Pod、Ray",
+    "sources": [
+      "k8s"
+    ]
+  },
+  {
+    "name": "K8s",
+    "fullName": "Kubernetes（首尾之间省略 8 个字母）",
+    "chinese": "Kubernetes 简写",
+    "grade": "B",
+    "domain": "平台系统",
+    "definition": "Kubernetes 的常用缩写，不是另一个软件。",
+    "problem": "简洁指代 Kubernetes",
+    "related": "Kubernetes、Pod",
+    "sources": [
+      "k8s"
+    ]
+  },
+  {
+    "name": "Ray",
+    "fullName": "—",
+    "chinese": "Ray 分布式计算框架",
+    "grade": "B",
+    "domain": "分布式系统",
+    "definition": "提供任务、Actor 等抽象及相关 AI 工作负载组件的分布式系统。",
+    "problem": "组织跨进程与跨机器计算",
+    "related": "Ray Actor、Kubernetes",
+    "sources": [
+      "ray",
+      "raycore"
+    ]
+  },
+  {
+    "name": "Cluster",
+    "fullName": "—",
+    "chinese": "集群",
+    "grade": "B",
+    "domain": "分布式系统",
+    "definition": "由多个协作节点构成的计算资源集合。",
+    "problem": "聚合资源并支持分布式工作",
+    "related": "Node、Resource Scheduling",
+    "sources": [
+      "k8s",
+      "ray"
+    ]
+  },
+  {
+    "name": "Node",
+    "fullName": "—",
+    "chinese": "节点",
+    "grade": "B",
+    "domain": "分布式系统",
+    "definition": "集群中的机器或计算实例。",
+    "problem": "承载工作负载和提供资源",
+    "related": "Cluster、Worker",
+    "sources": [
+      "k8s"
+    ]
+  },
+  {
+    "name": "Resource Scheduling",
+    "fullName": "—",
+    "chinese": "资源调度",
+    "grade": "B",
+    "domain": "平台系统",
+    "definition": "按需求和策略把工作分配给可用资源的过程。",
+    "problem": "协调有限算力、内存与运行位置",
+    "related": "Scheduler、Kubernetes",
+    "sources": [
+      "k8s",
+      "raycore"
+    ]
+  },
+  {
+    "name": "Load Balancing",
+    "fullName": "—",
+    "chinese": "负载均衡",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "依据策略把请求分配到多个服务实例。",
+    "problem": "分散服务负载并利用多个副本",
+    "related": "Replica、Auto Scaling",
+    "sources": [
+      "k8s",
+      "vllm"
+    ]
+  },
+  {
+    "name": "Auto Scaling",
+    "fullName": "—",
+    "chinese": "自动扩缩容",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "依据指标或策略调整运行资源和副本数量。",
+    "problem": "匹配需求与成本；扩容存在准备时间",
+    "related": "Replica、Load Balancing",
+    "sources": [
+      "k8s",
+      "ray"
+    ]
+  },
+  {
+    "name": "Replica",
+    "fullName": "—",
+    "chinese": "副本",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "可独立处理工作的一份服务或模型运行实例。",
+    "problem": "扩展服务容量与可用性",
+    "related": "Model Parallelism、Load Balancing",
+    "sources": [
+      "k8s",
+      "vllm"
+    ]
+  },
+  {
+    "name": "Latency",
+    "fullName": "—",
+    "chinese": "延迟",
+    "grade": "A",
+    "domain": "性能指标",
+    "definition": "从约定起点到约定终点的耗时，需说明测量边界。",
+    "problem": "衡量请求体验",
+    "related": "TTFT、TPOT",
+    "sources": [
+      "metrics"
+    ]
+  },
+  {
+    "name": "TTFT",
+    "fullName": "Time To First Token",
+    "chinese": "首 Token 延迟",
+    "grade": "A",
+    "domain": "性能指标",
+    "definition": "从请求起点到首个输出 Token 的耗时。",
+    "problem": "衡量开始回复前的等待",
+    "related": "Latency、Prefill",
+    "sources": [
+      "metrics"
+    ]
+  },
+  {
+    "name": "TPOT",
+    "fullName": "Time Per Output Token",
+    "chinese": "每输出 Token 时间",
+    "grade": "A",
+    "domain": "性能指标",
+    "definition": "常指首个输出之后的平均每 Token 时间，口径随工具而异。",
+    "problem": "衡量持续生成速度",
+    "related": "TTFT、ITL",
+    "sources": [
+      "metrics"
+    ]
+  },
+  {
+    "name": "Throughput",
+    "fullName": "—",
+    "chinese": "吞吐量",
+    "grade": "A",
+    "domain": "性能指标",
+    "definition": "单位时间完成的工作量；本课使用系统输出 Token 每秒。",
+    "problem": "衡量整体处理能力",
+    "related": "Tokens/s、Concurrency",
+    "sources": [
+      "metrics"
+    ]
+  },
+  {
+    "name": "Tokens/s",
+    "fullName": "Tokens per second",
+    "chinese": "每秒词元数",
+    "grade": "B",
+    "domain": "性能指标",
+    "definition": "以 Token 为工作单位的速率，需标明输入输出与统计范围。",
+    "problem": "表达吞吐或单请求生成速度",
+    "related": "Throughput、TPOT",
+    "sources": [
+      "metrics"
+    ]
+  },
+  {
+    "name": "Concurrency",
+    "fullName": "—",
+    "chinese": "并发数",
+    "grade": "A",
+    "domain": "性能指标",
+    "definition": "某统计边界内同时存在的请求或任务数量。",
+    "problem": "描述系统同时承受的工作量",
+    "related": "Batch Size、Throughput",
+    "sources": [
+      "metrics"
+    ]
+  },
+  {
+    "name": "Batch Size",
+    "fullName": "—",
+    "chinese": "批大小",
+    "grade": "B",
+    "domain": "计算调度",
+    "definition": "一次组织执行的数据项或请求数量，具体定义依场景而定。",
+    "problem": "控制批量执行规模",
+    "related": "Batching、Concurrency",
+    "sources": [
+      "pytorch",
+      "orca"
+    ]
+  },
+  {
+    "name": "GPU Utilization",
+    "fullName": "—",
+    "chinese": "GPU 利用率",
+    "grade": "B",
+    "domain": "性能指标",
+    "definition": "按特定采样和计数口径描述 GPU 忙碌程度的指标。",
+    "problem": "辅助判断设备是否忙碌，不等于有效计算效率",
+    "related": "Profiling、Throughput",
+    "sources": [
+      "ncu",
+      "nsys"
+    ]
+  },
+  {
+    "name": "GPU Memory Usage",
+    "fullName": "—",
+    "chinese": "GPU 显存占用",
+    "grade": "B",
+    "domain": "性能指标",
+    "definition": "设备内存已使用或已预留的数量，需说明统计口径。",
+    "problem": "观察容量压力",
+    "related": "VRAM、OOM",
+    "sources": [
+      "metrics",
+      "cuda"
+    ]
+  },
+  {
+    "name": "OOM",
+    "fullName": "Out Of Memory",
+    "chinese": "内存不足",
+    "grade": "B",
+    "domain": "运行故障",
+    "definition": "无法满足内存分配请求的状态或错误。",
+    "problem": "提示资源容量或分配策略需要调整",
+    "related": "VRAM、KV Cache",
+    "sources": [
+      "cuda",
+      "cache"
+    ]
+  },
+  {
+    "name": "Profiling",
+    "fullName": "—",
+    "chinese": "性能分析",
+    "grade": "B",
+    "domain": "性能分析",
+    "definition": "记录和分析运行时间、资源活动与计数器的过程。",
+    "problem": "定位瓶颈并验证优化",
+    "related": "Nsight Systems、Nsight Compute",
+    "sources": [
+      "nsys",
+      "ncu"
+    ]
+  },
+  {
+    "name": "GPU Architecture",
+    "fullName": "—",
+    "chinese": "GPU 架构",
+    "grade": "C",
+    "domain": "硬件扩展",
+    "definition": "GPU 计算、存储与执行组织的设计。",
+    "problem": "理解硬件约束和优化空间",
+    "related": "SM、Warp",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "SM",
+    "fullName": "Streaming Multiprocessor",
+    "chinese": "流式多处理器",
+    "grade": "C",
+    "domain": "硬件扩展",
+    "definition": "NVIDIA GPU 中容纳执行和相关片上资源的计算单元。",
+    "problem": "执行和调度 GPU 工作",
+    "related": "Warp、Thread",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "CUDA Core",
+    "fullName": "—",
+    "chinese": "CUDA 计算核心",
+    "grade": "C",
+    "domain": "硬件扩展",
+    "definition": "NVIDIA 对部分标量算术执行资源的称谓，具体能力依架构变化。",
+    "problem": "执行相应算术操作",
+    "related": "SM、Tensor Core",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "Warp",
+    "fullName": "—",
+    "chinese": "线程束",
+    "grade": "C",
+    "domain": "GPU 编程",
+    "definition": "CUDA 中用于组织线程执行的一组线程，常见 NVIDIA 架构为 32 个。",
+    "problem": "组织 SIMT 执行",
+    "related": "SIMT、SM",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "Thread",
+    "fullName": "—",
+    "chinese": "线程",
+    "grade": "C",
+    "domain": "GPU 编程",
+    "definition": "CUDA 软件执行中的一个逻辑线程；与操作系统线程不是同一层次概念。",
+    "problem": "表达并行工作单元",
+    "related": "Block、Warp",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "Block",
+    "fullName": "—",
+    "chinese": "线程块",
+    "grade": "C",
+    "domain": "GPU 编程",
+    "definition": "CUDA 中可协作并使用块内共享资源的一组线程。",
+    "problem": "组织线程合作",
+    "related": "Thread、Grid、Shared Memory",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "Grid",
+    "fullName": "—",
+    "chinese": "线程网格",
+    "grade": "C",
+    "domain": "GPU 编程",
+    "definition": "一次 CUDA Kernel 启动中的线程块集合。",
+    "problem": "组织一次内核的整体工作",
+    "related": "Block、Kernel",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "SIMT",
+    "fullName": "Single Instruction Multiple Threads",
+    "chinese": "单指令多线程",
+    "grade": "C",
+    "domain": "GPU 编程",
+    "definition": "用多线程模型表达并行执行的一种架构与执行方式。",
+    "problem": "支持大规模线程并行",
+    "related": "Warp、Thread",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "Register",
+    "fullName": "—",
+    "chinese": "寄存器",
+    "grade": "C",
+    "domain": "GPU 编程",
+    "definition": "供执行单元快速访问的片上存储资源，通常保存线程局部值。",
+    "problem": "低延迟访问临时数据",
+    "related": "Shared Memory、Global Memory",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "Shared Memory",
+    "fullName": "—",
+    "chinese": "共享内存",
+    "grade": "C",
+    "domain": "GPU 编程",
+    "definition": "CUDA 中线程块可协作访问的片上存储空间。",
+    "problem": "复用数据和在线程间协作",
+    "related": "Register、Block",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "Global Memory",
+    "fullName": "—",
+    "chinese": "全局内存",
+    "grade": "C",
+    "domain": "GPU 编程",
+    "definition": "CUDA 中全局可寻址的设备内存空间。",
+    "problem": "存放较大规模和跨块访问的数据",
+    "related": "VRAM、Memory Bandwidth",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "CUDA Runtime",
+    "fullName": "—",
+    "chinese": "CUDA 运行时",
+    "grade": "C",
+    "domain": "计算软件扩展",
+    "definition": "提供设备、内存及执行管理等接口的 CUDA 软件层。",
+    "problem": "简化主机对 GPU 的管理",
+    "related": "CUDA、Kernel",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "CUDA Stream",
+    "fullName": "—",
+    "chinese": "CUDA 流",
+    "grade": "C",
+    "domain": "计算软件扩展",
+    "definition": "组织具有顺序关系的设备操作的队列抽象。",
+    "problem": "表达执行顺序和可能的并发",
+    "related": "CUDA Graph、Kernel",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "CUDA Graph",
+    "fullName": "—",
+    "chinese": "CUDA 图",
+    "grade": "C",
+    "domain": "计算软件扩展",
+    "definition": "描述可重复提交的操作及依赖关系的图机制。",
+    "problem": "降低重复工作提交开销",
+    "related": "CUDA Stream、Kernel",
+    "sources": [
+      "cuda"
+    ]
+  },
+  {
+    "name": "CUTLASS",
+    "fullName": "CUDA Templates for Linear Algebra Subroutines",
+    "chinese": "CUDA 线性代数模板库",
+    "grade": "C",
+    "domain": "计算软件扩展",
+    "definition": "构建高性能矩阵等计算内核的 CUDA 模板与组件库。",
+    "problem": "定制 GPU 线性代数实现",
+    "related": "cuBLAS、GEMM",
+    "sources": [
+      "cutlass"
+    ]
+  },
+  {
+    "name": "Autograd",
+    "fullName": "Automatic Differentiation",
+    "chinese": "自动求导",
+    "grade": "C",
+    "domain": "训练扩展",
+    "definition": "根据计算关系自动计算导数的机制。",
+    "problem": "为训练提供梯度",
+    "related": "PyTorch、Training",
+    "sources": [
+      "pytorch"
+    ]
+  },
+  {
+    "name": "FSDP",
+    "fullName": "Fully Sharded Data Parallel",
+    "chinese": "完全分片数据并行",
+    "grade": "C",
+    "domain": "训练扩展",
+    "definition": "通过跨设备分片模型状态降低每设备存储负担的训练方法。",
+    "problem": "降低分布式训练内存需求",
+    "related": "ZeRO、DP",
+    "sources": [
+      "distributed"
+    ]
+  },
+  {
+    "name": "ZeRO",
+    "fullName": "Zero Redundancy Optimizer",
+    "chinese": "零冗余优化器",
+    "grade": "C",
+    "domain": "训练扩展",
+    "definition": "按阶段分片优化器状态、梯度和参数等的训练优化技术。",
+    "problem": "减少数据并行的冗余存储",
+    "related": "DeepSpeed、FSDP",
+    "sources": [
+      "deepspeed"
+    ]
+  },
+  {
+    "name": "NCCL",
+    "fullName": "NVIDIA Collective Communication Library",
+    "chinese": "NVIDIA 集合通信库",
+    "grade": "C",
+    "domain": "通信扩展",
+    "definition": "提供面向多 GPU 的集合与点对点通信操作的库。",
+    "problem": "高效交换分布式计算数据",
+    "related": "AllReduce、TP",
+    "sources": [
+      "nccl"
+    ]
+  },
+  {
+    "name": "AllReduce",
+    "fullName": "—",
+    "chinese": "全归约",
+    "grade": "C",
+    "domain": "通信扩展",
+    "definition": "将参与者数据按指定操作归约，并使参与者获得归约结果。",
+    "problem": "实现分布式数据聚合与同步",
+    "related": "NCCL、DP",
+    "sources": [
+      "nccl"
+    ]
+  },
+  {
+    "name": "Chunked Prefill",
+    "fullName": "—",
+    "chinese": "分块预填充",
+    "grade": "C",
+    "domain": "推理扩展",
+    "definition": "把较长 Prefill 工作划分为较小片段进行调度。",
+    "problem": "协调长输入工作与其他请求的延迟",
+    "related": "Prefill、Scheduler",
+    "sources": [
+      "vllmopt"
+    ]
+  },
+  {
+    "name": "Speculative Decoding",
+    "fullName": "—",
+    "chinese": "推测解码",
+    "grade": "C",
+    "domain": "推理扩展",
+    "definition": "先提出候选 Token，再由目标模型验证的一类加速方法。",
+    "problem": "在合适条件下减少目标模型的逐步生成成本",
+    "related": "Decode、Inference",
+    "sources": [
+      "spec"
+    ]
+  },
+  {
+    "name": "Disaggregated Prefill/Decode",
+    "fullName": "—",
+    "chinese": "预填充与解码分离",
+    "grade": "C",
+    "domain": "推理扩展",
+    "definition": "让 Prefill 与 Decode 在不同资源上执行并转移必要状态的部署方式。",
+    "problem": "分别优化两阶段资源与调度",
+    "related": "Prefill、Decode、KV Cache",
+    "sources": [
+      "vllmpd"
+    ]
+  },
+  {
+    "name": "FP16",
+    "fullName": "16-bit Floating Point",
+    "chinese": "十六位浮点数",
+    "grade": "C",
+    "domain": "数值格式",
+    "definition": "一种常用半精度浮点表示。",
+    "problem": "平衡表示精度、范围和存储成本",
+    "related": "BF16、Quantization",
+    "sources": [
+      "quant"
+    ]
+  },
+  {
+    "name": "BF16",
+    "fullName": "Brain Floating Point 16",
+    "chinese": "脑浮点十六位格式",
+    "grade": "C",
+    "domain": "数值格式",
+    "definition": "具有较宽指数范围、较少有效数字位的十六位浮点格式。",
+    "problem": "在较低存储成本下保留较大数值范围",
+    "related": "FP16、Training",
+    "sources": [
+      "quant"
+    ]
+  },
+  {
+    "name": "FP8",
+    "fullName": "8-bit Floating Point",
+    "chinese": "八位浮点格式",
+    "grade": "C",
+    "domain": "数值格式",
+    "definition": "一类使用八位编码的浮点格式，不同变体范围与精度不同。",
+    "problem": "降低数值存储与受支持计算成本",
+    "related": "Quantization、FP16",
+    "sources": [
+      "quant"
+    ]
+  },
+  {
+    "name": "INT8",
+    "fullName": "8-bit Integer",
+    "chinese": "八位整数",
+    "grade": "C",
+    "domain": "数值格式",
+    "definition": "使用八位表示整数的格式，量化中常配合缩放等信息。",
+    "problem": "降低表示成本",
+    "related": "INT4、Quantization",
+    "sources": [
+      "quant"
+    ]
+  },
+  {
+    "name": "INT4",
+    "fullName": "4-bit Integer",
+    "chinese": "四位整数",
+    "grade": "C",
+    "domain": "数值格式",
+    "definition": "使用四位表示整数的格式，模型量化还需要相应编码信息。",
+    "problem": "进一步降低部分权重表示成本",
+    "related": "INT8、AWQ",
+    "sources": [
+      "quant"
+    ]
+  },
+  {
+    "name": "AWQ",
+    "fullName": "Activation-aware Weight Quantization",
+    "chinese": "激活感知权重量化",
+    "grade": "C",
+    "domain": "量化扩展",
+    "definition": "利用激活信息指导权重量化的一种方法。",
+    "problem": "在低位宽权重表示下尽量保持质量",
+    "related": "Quantization、INT4",
+    "sources": [
+      "awq"
+    ]
+  },
+  {
+    "name": "GPTQ",
+    "fullName": "项目名 GPTQ",
+    "chinese": "GPTQ 权重量化方法",
+    "grade": "C",
+    "domain": "量化扩展",
+    "definition": "利用近似二阶信息进行训练后权重量化的方法。",
+    "problem": "高效压缩模型权重并控制误差",
+    "related": "Quantization、AWQ",
+    "sources": [
+      "gptq"
+    ]
+  },
+  {
+    "name": "Distributed System",
+    "fullName": "—",
+    "chinese": "分布式系统",
+    "grade": "C",
+    "domain": "系统扩展",
+    "definition": "多个进程或节点通过通信协作完成工作的系统。",
+    "problem": "跨资源协调工作与故障处理",
+    "related": "Cluster、Ray",
+    "sources": [
+      "raycore"
+    ]
+  },
+  {
+    "name": "Process",
+    "fullName": "—",
+    "chinese": "进程",
+    "grade": "C",
+    "domain": "系统扩展",
+    "definition": "操作系统管理程序执行和相关资源的一种基本单位。",
+    "problem": "隔离与组织程序运行",
+    "related": "Worker、Thread",
+    "sources": [
+      "raycore"
+    ]
+  },
+  {
+    "name": "Pod",
+    "fullName": "—",
+    "chinese": "Pod 部署单元",
+    "grade": "C",
+    "domain": "容器扩展",
+    "definition": "Kubernetes 中一起调度、共享部分资源的一个或多个容器集合。",
+    "problem": "提供最小可部署工作负载单元",
+    "related": "Kubernetes、Container",
+    "sources": [
+      "pods"
+    ]
+  },
+  {
+    "name": "Ray Actor",
+    "fullName": "—",
+    "chinese": "Ray 有状态执行单元",
+    "grade": "C",
+    "domain": "分布式扩展",
+    "definition": "在专属工作进程中保持状态并执行方法的 Ray 抽象。",
+    "problem": "组织有状态分布式工作",
+    "related": "Ray、Worker",
+    "sources": [
+      "raycore"
+    ]
+  },
+  {
+    "name": "HTTP",
+    "fullName": "Hypertext Transfer Protocol",
+    "chinese": "超文本传输协议",
+    "grade": "C",
+    "domain": "接口扩展",
+    "definition": "规定请求响应等语义的应用层协议。",
+    "problem": "支持客户端与服务端交换消息",
+    "related": "API、REST API",
+    "sources": [
+      "http"
+    ]
+  },
+  {
+    "name": "REST API",
+    "fullName": "Representational State Transfer API",
+    "chinese": "REST 风格接口",
+    "grade": "C",
+    "domain": "接口扩展",
+    "definition": "遵循 REST 架构约束设计的接口；并非所有 HTTP JSON 接口都是严格 REST。",
+    "problem": "组织资源与接口交互",
+    "related": "HTTP、API",
+    "sources": [
+      "rest"
+    ]
+  },
+  {
+    "name": "OpenAI-Compatible API",
+    "fullName": "—",
+    "chinese": "兼容 OpenAI 接口",
+    "grade": "C",
+    "domain": "接口扩展",
+    "definition": "实现部分相似请求响应协议的接口，兼容范围依实现而定。",
+    "problem": "降低客户端接入成本",
+    "related": "API、Model Serving",
+    "sources": [
+      "vllm"
+    ]
+  },
+  {
+    "name": "ITL",
+    "fullName": "Inter-Token Latency",
+    "chinese": "相邻 Token 间隔",
+    "grade": "C",
+    "domain": "性能扩展",
+    "definition": "相邻输出 Token 到达或产生的时间差，需说明边界。",
+    "problem": "观察逐步生成的抖动与流畅程度",
+    "related": "TPOT、Latency",
+    "sources": [
+      "metrics"
+    ]
+  },
+  {
+    "name": "QPS",
+    "fullName": "Queries Per Second",
+    "chinese": "每秒请求数",
+    "grade": "C",
+    "domain": "性能扩展",
+    "definition": "单位时间内处理的请求数量，不能忽略各请求工作量差异。",
+    "problem": "衡量请求层面的处理速率",
+    "related": "Throughput、Tokens/s",
+    "sources": [
+      "metrics"
+    ]
+  },
+  {
+    "name": "Nsight Systems",
+    "fullName": "—",
+    "chinese": "Nsight 系统分析工具",
+    "grade": "C",
+    "domain": "性能扩展",
+    "definition": "以时间线等方式分析 CPU、GPU 与系统活动的 NVIDIA 工具。",
+    "problem": "寻找整体时间分布与协作瓶颈",
+    "related": "Profiling、Nsight Compute",
+    "sources": [
+      "nsys"
+    ]
+  },
+  {
+    "name": "Nsight Compute",
+    "fullName": "—",
+    "chinese": "Nsight 内核分析工具",
+    "grade": "C",
+    "domain": "性能扩展",
+    "definition": "分析 GPU 内核性能及相关硬件计数器的 NVIDIA 工具。",
+    "problem": "定位内核内部资源与执行瓶颈",
+    "related": "Profiling、Nsight Systems",
+    "sources": [
+      "ncu"
+    ]
+  },
+  {
+    "name": "AI Agent",
+    "fullName": "Artificial Intelligence Agent",
+    "chinese": "人工智能智能体",
+    "grade": "C",
+    "domain": "应用扩展",
+    "definition": "利用模型等能力选择行动、调用工具并推进任务的一类应用系统。",
+    "problem": "组织多步骤任务执行",
+    "related": "API、LLM",
+    "sources": [
+      "agent"
+    ]
+  }
+]
