@@ -55,7 +55,7 @@ def docbase(title):
     states=sum(len(p['steps']) for p in D['slides'])
     doc.add_paragraph(f'共 {len(D["chapters"])} 章 {len(D["slides"])} 页 {states} 个教学状态。预计录制时长 {mm(total)}。估算包含口播和图示停顿，实际时长以试读为准。')
     doc.add_paragraph('使用方式','Heading 1')
-    doc.add_paragraph('打开 HTML 课件即可跟随字幕朗读。每页从 .0 开始，读完当前段落按一次 Space。读完页末一段后再按 Space，直接进入下一页。')
+    doc.add_paragraph('打开 HTML 课件即可跟随字幕朗读。每页从 .0 开始，每读完一行字幕按一次 Space。读完一个画面的最后一行，再按 Space 就会切换画面或翻页。')
     doc.add_paragraph('每条台词上方是播放序号、补录锚点和画面提示。例如「049 · S04.1」是全课第 49 段，补录时用 #S04/1 定位。Backspace 回到上一句，R 重播当前动作，P 暂停或继续动画。')
     doc.add_paragraph('章节与预计时长','Heading 1')
     for i,ch in enumerate(D['chapters'],1):
@@ -83,7 +83,7 @@ script.save(OUT / 'AI_Infra_完整口播稿.docx')
 md = [
     '# 从零认识 AI Infra 完整口播稿', '',
     D['subtitle'], '',
-    '每页第一段随画面显示。读完当前段落按 Space，页末也用 Space 进入下一页。每段标题列出全课播放序号、补录锚点和画面提示。例如 `049 · S04.1` 是全课第 49 段，补录时用 `#S04/1` 定位。', '',
+    '课件一次显示一行字幕。读完一行按一次 Space，读完当前画面的最后一行再按 Space，就会切换画面或翻页。每段标题列出全课播放序号、补录锚点和画面提示。例如 `049 · S04.1` 是全课第 49 段，补录时用 `#S04/1` 定位。', '',
     '正文由 course.json 导出，与课件字幕一致。', '',
     f'预计录制时长 {mm(sum(p["estimatedSeconds"] for p in D["slides"]))}，包含口播和画面停顿。', '',
 ]

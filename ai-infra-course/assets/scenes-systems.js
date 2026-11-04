@@ -46,38 +46,42 @@
     const selected = order.indexOf(+beat.id.split('.')[1]);
     const active = [0, 0, 0, 1, 2, 2, 3, 3, 4, 5][selected];
     const rows = [
-      ['硬件基础设施', 'CPU · GPU · NPU', 'SSD · DDR · HBM', 'PCIe · NVLink · InfiniBand'],
-      ['系统软件与运行时', '操作系统与 GPU 驱动', 'CUDA Runtime / Toolkit', '容器运行时与设备访问'],
-      ['GPU 编程与计算库', 'CUDA C++ · Triton 语言', 'cuBLAS · cuDNN', 'NCCL 通信库'],
-      ['框架与模型执行', 'PyTorch · Transformers', 'DeepSpeed · Megatron-LM', 'vLLM · SGLang · TensorRT-LLM'],
-      ['集群与服务平台', 'Docker · Kubernetes', 'Ray · 任务与资源调度', '应用 → API / 负载均衡 → 副本'],
-      ['可观测性与运维', 'Metrics · Logs · Traces', 'Profiling · SLO', '故障恢复与持续优化'],
+      ['硬件', ['计算设备', 'CPU · GPU · NPU'], ['存放数据', 'SSD · DDR · HBM'], ['设备互联', 'PCIe · NVLink · InfiniBand']],
+      ['设备接入', ['管理设备', '操作系统 · GPU 驱动'], ['调用和开发（NVIDIA）', 'CUDA Runtime / Toolkit'], ['开放设备权限', '容器运行时']],
+      ['计算与通信', ['编写内核', 'CUDA C++ · Triton'], ['调用现成算子', 'cuBLAS · cuDNN'], ['跨 GPU 交换数据', 'NCCL']],
+      ['模型执行', ['构建模型', 'PyTorch · HF Transformers'], ['组织多卡训练', 'DeepSpeed · Megatron-LM'], ['组织推理', 'vLLM · SGLang · TensorRT-LLM']],
+      ['集群与服务', ['打包与管理副本', 'Docker · Kubernetes'], ['分发程序任务', 'Ray'], ['接入并分流', '应用 → API / 负载均衡 → 副本']],
     ];
-    const colors = [blue, purple, orange, green, blue, purple];
-    let art = path('M24 42V526', faint, 2);
+    const colors = [blue, purple, orange, green, blue];
+    let art = path('M24 49V465', faint, 2);
     rows.forEach(([label, ...parts], i) => {
-      const y = i * 95, color = i === active ? colors[i] : i < active ? muted : faint;
-      art += dot(24, y + 40, color, 7) + path(`M48 ${y + 81}H1675`);
-      art += text(60, y + 50, label, 30, color);
+      const y = i * 104, color = i === active ? colors[i] : i < active ? muted : faint;
+      art += dot(24, y + 49, color, 7) + path(`M48 ${y + 91}H1652`);
+      art += text(60, y + 60, label, 33, color);
       if (i <= active) {
-        parts.forEach((part, j) => {
+        parts.forEach(([role, tools], j) => {
           if ((selected === 1 && i === 0 && j > 0) || (selected === 4 && i === 2 && j > 0) ||
               (selected === 6 && i === 3 && j > 0)) return;
-          const field = text([420, 815, 1215][j], y + 50, part, 25, i === active ? ink : muted);
+          const x = [370, 770, 1170][j];
+          const field = text(x, y + 35, role, 22, color) +
+            text(x, y + 68, tools, 25, i === active ? ink : muted);
           art += i === active ? appear(field, j * 160) : field;
         });
       }
     });
-    if (selected >= 3) {
-      const vendor = text(815, 169, 'NVIDIA 示例', 22, muted);
-      art += selected === 3 ? appear(vendor, 160) : vendor;
-    }
     if (selected >= 5) {
-      const ecosystems = text(420, 264, 'NVIDIA 示例：CUDA、cuBLAS、cuDNN、NCCL', 22, muted) +
-        text(1040, 264, 'AMD GPU：ROCm · 昇腾加速器：CANN', 22, selected === 5 ? orange : muted);
+      const ecosystems = text(60, 291, 'AMD ROCm · 昇腾 CANN', 21, selected === 5 ? orange : muted);
       art += selected === 5 ? appear(ecosystems, 500) : ecosystems;
     }
-    if (active === 5) art += path('M1650 528H1690V45H1650', purple, 2, '7 7');
+    if (active === 5) {
+      let guide = path('M1680 49V541H48', purple, 2, '7 7');
+      rows.forEach((_, i) => { guide += path(`M1658 ${49 + i * 104}H1680`, purple); });
+      guide += text(60, 587, '贯穿各层的观测', 30, purple) +
+        text(370, 587, '指标 · 发现变慢', 26, ink) +
+        text(770, 587, '日志 · 核对事件', 26, ink) +
+        text(1170, 587, 'Trace · 定位请求耗时', 26, ink);
+      art += appear(guide, 200);
+    }
     return art;
   }
 
@@ -95,7 +99,7 @@
     if (step) art += move([[xs[step - 1], 106], [xs[step], 106]]);
     if (step === 6) art += path(`M${xs[6]} 174V218H${xs[2]}V174`, purple, 2, '8 8');
     const samples = [
-      ['差旅制度.txt', '清洗、分词、分批', '训练批次 01'],
+      ['训练语料', '清洗、去重、分词', '训练批次 01'],
       ['训练批次 01', 'GPU 集群更新参数', '权重 v1 + 检查点'],
       ['权重 v1', '新题：返程日遇到假期', '评测：区分工作日'],
       ['权重 v1', '转换 / 量化后再评估', '已评估模型产物'],
@@ -505,15 +509,15 @@
 
   function summary(step) {
     const guide = [
-      ['计算', 'GPU 执行慢', '核对算力、访存和具体内核', 'Kernel · CUDA / Triton · 计算库', orange],
-      ['资源', '新请求放不下', '分开估算权重与历史 KV', '量化 · 模型并行 · 块管理', purple],
-      ['调度', '队列迟迟腾不出位置', '看每轮组批和前缀复用', 'Continuous Batching · Prefix Caching', green],
-      ['服务', '高峰期部分副本过载', '看请求去向和副本就绪', 'API · Docker · Kubernetes / Ray · 负载均衡', blue],
-      ['运维', '改动后需要复测', '在同样负载下对比信号', 'TTFT / TPOT · Goodput · 日志 / 追踪', orange],
+      ['计算', '执行阶段慢', '分开看计算与访存', 'Prefill · Decode · GPU 内核', orange],
+      ['显存', '第五条暂时放不下', '区分权重与请求缓存', '权重已加载，四条请求占满缓存预算', purple],
+      ['调度', '第一条完成，缓存归还', '检查剩余资源，重新组批', '第五条进入执行', green],
+      ['服务', '有另一个就绪副本', '看副本还有没有余量', '入口可把第五条分给它', blue],
+      ['运维', '改动后复测', '保持请求和并发一致', 'TTFT · Token 间隔 · 错误率 · 达标数', orange],
     ];
     let art = '';
     if (step < 5) {
-      art += text(215, 53, '现象', 28, muted) + text(677, 53, '先查什么', 28, muted) + text(1120, 53, '对应技术', 28, muted);
+      art += text(215, 53, '发生了什么', 28, muted) + text(677, 53, '先看哪里', 28, muted) + text(1120, 53, '关键线索', 28, muted);
       guide.forEach(([domain, symptom, action, tools, color], i) => {
         const y = 76 + i * 103, selected = i === step;
         art += path(`M0 ${y + 84}H1660`) + text(0, y + 52, domain, 38, selected ? color : muted);
@@ -525,26 +529,32 @@
       });
       return art;
     }
-    const xs = [0, 343, 686, 1029, 1372];
-    const steps = [['数据准备', '训练批次'], ['多卡训练', '模型权重'], ['评估与部署', '已就绪副本'], ['在线推理', '生成 Token'], ['服务用户', '西红柿炒蛋']];
-    steps.forEach(([title, detail], i) => {
-      art += appear(block(xs[i], 182, 298, title, detail, i < 3 ? purple : green), i * 245);
-      if (i < 4) art += arrow(xs[i] + 305, 238, xs[i + 1] - 7, 238, muted);
+    const preparation = [['数据准备', '整理训练样本'], ['训练', '更新模型权重'], ['评估', '验证模型效果'], ['部署', '加载权重并通过检查']];
+    const request = [['客户端发问', '推荐一道晚餐'], ['服务入口', '发给可用副本'], ['推理引擎', '排队、组批、分配缓存'], ['GPU', 'Prefill 与 Decode'], ['流式回答', '西红柿炒蛋']];
+    art += text(0, 50, '用户发问之前', 32, purple);
+    preparation.forEach(([title, detail], i) => {
+      const x = i * 430;
+      art += appear(block(x, 78, 365, title, detail, purple), step === 5 ? i * 245 : 0);
+      if (i < preparation.length - 1) art += arrow(x + 374, 134, x + 418, 134, muted);
     });
-    if (step === 5) art += move([[305, 238], [673, 238], [1016, 238]], '模型', purple);
-    if (step === 6) {
-      art += appear(center(1178, 106, 'GPU 内核执行计算', 25, green), 420) +
-        appear(center(1178, 143, '推理引擎分配缓存、安排组批', 25, green), 670) +
-        appear(center(835, 143, '服务入口给可用副本分流', 25, blue), 920) +
-        path('M1518 305V418H835V307', orange, 3, '7 7') +
-        move([[1518, 305], [1518, 418], [835, 418], [835, 312]], '', orange) +
-        center(1176, 476, '高峰时分担流量，故障时由可用副本继续接单', 29, orange);
-    }
+    if (step === 5) return art + move([[795, 134], [1280, 134]], '模型', purple, 420);
+
+    art += path('M1472 194V245H492V319', purple, 2, '7 7') +
+      text(998, 232, '副本就绪，入口可分配请求', 24, purple) +
+      text(0, 291, '第五条请求的在线路径', 32, green);
+    request.forEach(([title, detail], i) => {
+      const x = i * 343, color = i === 2 ? orange : green;
+      art += appear(block(x, 326, 298, title, detail, color), 200 + i * 230);
+      if (i < request.length - 1) art += arrow(x + 305, 382, x + 336, 382, muted);
+    });
+    art += move([[300, 382], [641, 382], [982, 382], [1328, 382]], '', green, 350);
+    art += appear(text(686, 505, '第五条在这里等到缓存空间', 28, orange) +
+      path('M835 448V470', orange), 1150);
     return art;
   }
 
   const scenes = {
-    S03: [atlas, '按职责组织技术。图中的行用于定位工具，具体组件可按需要组合。'],
+    S03: [atlas, '每行是一类职责。各类组件按训练或在线服务的实际需要组合。'],
     S30: [lifecycle, '以企业问答为例。评估和优化可以反复进行，监控结果也会反馈到前面的环节。'],
     S31: [runtime, '以 NVIDIA GPU 为例。容器内的运行库和宿主驱动需要兼容。'],
     S32: [execution, 'NVIDIA CUDA 执行示意。初始数组和分派图省略了部分线程及设备单元。'],

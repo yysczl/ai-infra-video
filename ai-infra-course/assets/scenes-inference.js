@@ -9,12 +9,12 @@
   const r=(x,y,w,h,color=C.green,opacity=1,extra='')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${color}" opacity="${opacity}" ${extra}/>`;
   const flow=(points,color=C.orange,duration=3200,delay=0,radius=6,extra='')=>`<circle class="i-flow" r="${radius}" fill="${color}" data-route="${points}" data-duration="${duration}" data-delay="${delay}" opacity="0" ${extra}/>`;
   const svg=body=>`<svg class="inference-art" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${body}</svg>`;
-  const titleNames={S12:'推理框架解决什么问题？',S13:'推理请求的执行流程',S14:'分词、嵌入与注意力',S15:'Prefill 与 Decode',S16:'KV Cache 怎样复用历史计算',S17:'KV Cache 占多少显存？',S18:'PagedAttention 怎样管理缓存？',S19:'缓存块的分配与回收',S20:'连续批处理怎样安排请求？',S21:'前缀缓存怎样命中？',S22:'量化减少数值占用'};
+  const titleNames={S12:'推理框架解决什么问题？',S13:'推理请求的执行流程',S14:'分词、嵌入与注意力',S15:'Prefill 与 Decode',S16:'KV Cache 怎样复用历史计算',S17:'KV Cache 占多少显存？',S18:'PagedAttention 怎样管理缓存？',S19:'缓存块的分配与回收',S20:'连续批处理怎样安排请求？',S21:'前缀缓存怎样命中？'};
   function frame(id,s,body,{layout='wide',title=titleNames[id],deck='',foot='',theme='',label}={}) {
     const p=window.COURSE.slides.find(slide=>slide.id===id);
     return `<section class="inference-scene inference-${layout} ${theme}" data-inference-slide="${id}" data-inference-step="${s}">
       <div class="inference-mast"><span>AI INFRA <i>/</i> 入门课</span><span>${String(p.chapter).padStart(2,'0')} — ${esc(window.COURSE.chapters[p.chapter-1])}</span><span data-course-folio></span></div>
-      <div class="inference-heading"><span class="inference-kicker">${id==='S12'?'模型服务':id==='S20'?'连续批处理':id==='S18'||id==='S19'?'PagedAttention':id==='S21'?'Prefix Caching':id==='S22'?'数值表示':'推理过程'} <b>— ${esc(label ?? p.steps.find(beat=>beat.id===`${id}.${s}`).label)}</b></span><h1>${title}</h1>${deck?`<p>${deck}</p>`:''}</div>
+      <div class="inference-heading"><span class="inference-kicker">${id==='S12'?'模型服务':id==='S20'?'连续批处理':id==='S18'||id==='S19'?'PagedAttention':id==='S21'?'Prefix Caching':id==='S22'?'推理优化':'推理过程'} <b>— ${esc(label ?? p.steps.find(beat=>beat.id===`${id}.${s}`).label)}</b></span><h1>${title}</h1>${deck?`<p>${deck}</p>`:''}</div>
       ${svg(body)}${foot?`<div class="inference-foot">${foot}</div>`:''}
     </section>`;
   }
@@ -444,37 +444,55 @@
     }
     return frame('S21',s,z,{layout:'hero',title:'前缀缓存<br>怎样命中？',deck:['两个请求可以包含相同的<br>系统提示或文档前缀。','服务可以保存 A 的前缀 KV，<br>供后续请求使用。','前缀与配置匹配时，<br>B 可以复用这段 KV。','命中后，B 只需处理<br>前缀之后的输入。'][s],foot:'命中依赖前缀 Token、模型、配置与缓存键匹配；共享还受租户隔离、保留和淘汰策略约束。'});
   }
-  function quantization(s) {
+  function quantization(s, beat) {
     let z='';
-    if(s<3) {
-      z+=t(130,429,'FP16',37,C.purple)+t(130,638,'INT4',37,C.green);
+    if(s<2) {
+      z+=t(130,429,'FP16',37,C.purple)+at(650,t(130,638,'INT4',37,C.green));
       const bits=['0011100111000000','0111'];
       bits.forEach((word,row)=>[...word].forEach((bit,i)=>{
         const x=340+i*85,y=row?584:375,color=row?C.green:C.purple;
         z+=at(row?650:0,r(x,y,66,76,color,.22,`data-bit-width="${word.length}" data-bit-position="${i}"`)+t(x+33,y+49,bit,29,color,'middle'));
       }));
-      z+=t(340,499,'原值 0.71875',27,C.purple)+t(697,631,'整数 7',29,C.green);
+      z+=t(340,499,'原值 0.71875',27,C.purple)+at(650,t(697,631,'整数 7',29,C.green));
       if(s>=1) {
         z+=at(920,t(878,631,'× 尺度 0.1 ≈ 0.7',33,C.orange));
         z+=t(340,763,'质量 · 硬件支持 · 内核实现 · 转换开销',29,C.muted);
       }
       if(s===0)z+=t(340,793,'同一个权重的量化前后表示。',30,C.muted);
       if(s===1)z+=t(340,841,'常见分组量化：一组值共享尺度，有些格式另存零点。',28,C.orange);
-      if(s===2) {
-        z+=processor(1220,740,'GPU 0',C.green,.65)+processor(1560,740,'GPU 1',C.green,.65);
-        z+=line('M340 700V850H1175 M1265 850H1515',C.line,2);
-        z+=flow('370,685 370,850 1175,850',C.green,3200,0,6)+flow('455,685 455,850 1515,850',C.green,3200,600,6);
-        z+=t(340,913,'量化改变数值表示；模型并行分配计算与状态。',29,C.ink);
-      }
+    } else if(s===2) {
+      z+=t(130,526,'一份模型的权重与计算',32);
+      [C.purple,C.green].forEach((color,i)=>{
+        const y=568+i*118;
+        z+=r(130,y,520,75,color,.15)+t(162,y+49,`分给 GPU ${i} 的部分`,28,color);
+        z+=line(`M650 ${y+37}H1050`,color,2)+flow(`650,${y+37} 1050,${y+37}`,color,1250,i*350);
+        z+=r(1060,y,640,75,color,.15)+t(1092,y+49,`GPU ${i} · 存放部分权重并执行对应计算`,28,color);
+      });
+      z+=line('M1620 647V680',C.orange,2)+t(1570,674,'按需通信',22,C.orange,'end');
+      z+=t(130,872,'单卡预算还要留给请求的 KV Cache 和临时数据。',28,C.muted);
     } else {
-      const nodes=[['KV Cache','保存历史 K / V',230,560,C.green],['PagedAttention','管理缓存块',590,775,C.orange],['Prefix Caching','复用相同前缀',1050,830,C.purple],['FlashAttention','减少中间读写',1530,775,C.green],['Quantization','改变数值表示',1660,465,C.orange]];
-      z+=dot(955,510,72,'#252c23')+t(955,520,'执行',37,C.ink,'middle');
-      for(const [name,desc,x,y,color] of nodes) {
-        z+=line(`M955 587L${x} ${y-60}`,color,1.5)+dot(x,y-60,6,color)+t(x,y,name,32,color,'middle')+t(x,y+43,desc,26,C.muted,'middle');
-        z+=flow(`955,587 ${x},${y-60}`,color,3300,(x%5)*250,5);
+      const rows=[
+        ['weights','权重占用太大','量化 / 模型并行','缩小权重表示，或分摊到多卡',C.orange],
+        ['cache','KV Cache 空间紧张','按块管理（PagedAttention）','按需分配，减少无效预留',C.green],
+        ['prefix','请求反复处理相同前缀','Prefix Caching','命中后跳过共同前缀的 Prefill',C.purple],
+        ['attention','注意力中间读写过多','FlashAttention','分块计算，减少显存往返',C.green],
+      ];
+      z+=t(145,405,'观察到的瓶颈',26,C.muted)+t(686,405,'对应手段',26,C.muted)+t(1190,405,'改变了什么',26,C.muted);
+      rows.forEach(([key,problem,method,effect,color],i)=>{
+        const y=432+i*102;
+        z+=`<g data-optimization="${key}">${r(130,y,1658,77,color,.10)}${t(145,y+50,problem,30,color)}
+          ${t(686,y+50,method,29)}${t(1190,y+50,effect,27,C.muted)}</g>`;
+      });
+      if(beat.id==='S22.9') {
+        z+=`<g data-optimization="decode">${t(145,919,'Decode 还要逐轮生成，能少让大模型执行几轮吗？',29,C.orange)}</g>`;
       }
     }
-    return frame('S22',s,z,{title:s===3?'常见推理优化对照':titleNames.S22,deck:s===3?'根据重算、读写或存储开销选择优化方法。':'用更少的位保存数值，可以减少存储和搬运的数据量。',foot:'实际显存还包括尺度、KV Cache 和临时数据；质量与性能需要在目标任务、框架和硬件上验证。'});
+    return frame('S22',s,z,{
+      title:s===3?'推理慢或显存不够，该先查哪里？':s===2?'权重装不下，就分给多张卡':'权重占用太大，先看位宽',
+      deck:s===3?'先找到主要开销，再选对应的手段。':s===2?'模型并行把一份模型的权重和计算拆到多张卡。':'量化用更少的比特表示权重。',
+      label:beat.label,
+      foot:'量化效果、显存节省和执行速度需在目标模型与硬件上验证。图中的权重和分工均为示意。',
+    });
   }
   function mount(root,s,{animate=false,previousStep=null}={}) {
     const animations=[], run=(el,frames,options)=>{if(el)animations.push(el.animate(frames,{fill:'none',...options}))};

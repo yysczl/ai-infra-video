@@ -429,7 +429,7 @@
     for(let i=0;i<3;i++)z+=motion([[1040,704],[1580,704],[1580,840],[1090,840],[1090,704]],C.green,i*660,3900,'block','data-transfer="onchip-reuse" data-tile="moving"');
     return shell('S08',s,'FlashAttention 的片上分块',z,'wide','图示简化了数据路径。实际收益依输入、硬件和实现，浮点计算存在数值误差。');
   }
-  function training(s){
+  function training(s,beat){
     const mid='text-anchor="middle"';
     let z=txt(105,378,s<2?'训练样本':'训练已完成',26,C.orange)+txt(105,463,'天气很 ___',57,C.ink)+txt(105,531,'样本中下一个词是「晴」',30,C.muted);
     const choices=s===0?[30,70]:[60,40];
@@ -452,7 +452,8 @@
       z+=txt(1385,489,'新的输入：今天很',32,C.ink)+arrow(1575,529,1575,602,C.green);
       z+=txt(1575,661,'暖',52,C.green,`${mid} data-foundation-reveal="620"`);
       z+=txt(1385,741,'同一个 w₁ = 0.10',28,C.muted);
-      if(s===3)z+=txt(1385,838,'LLM：大语言模型',27,C.ink)+txt(1385,891,'Transformer：常用架构',27,C.ink);
+      if(s===3)z+=txt(1385,838,'LLM：大语言模型',27,C.ink);
+      if(beat.id==='S09.9')z+=txt(1385,891,'PyTorch · 组织训练计算',27,C.ink);
     }
     return shell('S09',s,s<2?'模型练习预测下一个词':'用训练好的参数处理新输入',z,'training','候选词、概率和参数都是教学模拟。实际语言模型预测 Token。');
   }
