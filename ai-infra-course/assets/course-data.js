@@ -2,7 +2,7 @@ window.COURSE = {
   "title": "从零认识 AI Infra",
   "subtitle": "一个请求背后的计算、缓存与服务",
   "version": "1.1",
-  "reviewed": "2026-11-01",
+  "reviewed": "2026-11-04",
   "chapters": [
     "AI Infra 解决什么问题",
     "GPU 与计算软件",
@@ -238,6 +238,21 @@ window.COURSE = {
       "title": "PyTorch Automatic Differentiation with torch.autograd",
       "url": "https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html",
       "accessed": "2026-11-04"
+    },
+    "vllm_scheduler": {
+      "title": "vLLM 推理引擎与统一调度",
+      "url": "https://vllm-project.github.io/2025/09/05/anatomy-of-vllm.html",
+      "accessed": "2026-11-04"
+    },
+    "fsdp": {
+      "title": "PyTorch Fully Sharded Data Parallel",
+      "url": "https://docs.pytorch.org/docs/stable/fsdp.html",
+      "accessed": "2026-11-04"
+    },
+    "llama3": {
+      "title": "Meta Llama 3 模型论文与架构参数",
+      "url": "https://arxiv.org/html/2407.21783",
+      "accessed": "2026-11-04"
     }
   },
   "slides": [
@@ -255,75 +270,76 @@ window.COURSE = {
       ],
       "sources": [
         "vllm",
-        "metrics"
+        "metrics",
+        "vllm_scheduler"
       ],
       "steps": [
         {
-          "label": "在聊天框里输入",
-          "narration": "我先在聊天框里输入一个问题，什么是人工智能？",
+          "label": "输入第一条问题",
+          "narration": "同一个聊天模型，有时马上就开始回答，有时得等好几秒。它在等什么？",
           "phase": [
             0,
             1800
           ],
           "id": "S01.0",
-          "estimatedSeconds": 7
+          "estimatedSeconds": 8
         },
         {
-          "label": "点击发送",
-          "narration": "点下发送，问题就从输入框移进了对话。",
+          "label": "发送第一条问题",
+          "narration": "先发一条问题试试。",
           "phase": [
             0,
             550
           ],
           "id": "S01.1",
-          "estimatedSeconds": 6
+          "estimatedSeconds": 3
         },
         {
           "label": "请求抵达服务端",
-          "narration": "这条问题沿着橙色路径送到了服务端。",
+          "narration": "这条消息送到服务端，模型才能用它来生成回答。",
           "phase": [
             550,
             2220
           ],
           "id": "S01.4",
           "frame": 1,
-          "estimatedSeconds": 6
+          "estimatedSeconds": 5
         },
         {
           "label": "回复开头返回",
-          "narration": "模型算出开头的文字后，聊天窗口就可以先显示这一截。",
+          "narration": "模型刚算出一截文字，聊天窗口就能先显示这一截。",
           "phase": [
             2220,
             4910
           ],
           "id": "S01.5",
           "frame": 1,
-          "estimatedSeconds": 8
+          "estimatedSeconds": 6
         },
         {
-          "label": "流式补全解释和例子",
-          "narration": "后面的文字一段一段送回来，直到解释和例子都写完。",
+          "label": "流式补全回答",
+          "narration": "后面的文字接着传回来，这就是我们看到的流式回答。",
           "phase": [
             4910,
             6900
           ],
           "id": "S01.6",
           "frame": 1,
-          "estimatedSeconds": 7
+          "estimatedSeconds": 6
         },
         {
           "label": "更多人打开聊天窗口",
-          "narration": "把镜头拉远，旁边有人在写邮件，也有人想问晚餐吃什么。",
+          "narration": "现在换个情况，十二个人几乎同时向这个模型提问。",
           "phase": [
             0,
             710
           ],
           "id": "S01.2",
-          "estimatedSeconds": 8
+          "estimatedSeconds": 5
         },
         {
           "label": "十二条请求汇入同一个入口",
-          "narration": "现在有十二条请求先后发出，最后都到了同一个服务入口。",
+          "narration": "这些请求挤进同一个入口。谁能先算？生成到一半还能接新人吗？",
           "phase": [
             710,
             4300
@@ -333,83 +349,83 @@ window.COURSE = {
           "estimatedSeconds": 8
         },
         {
-          "label": "四条运行、八条等待",
-          "narration": "先看单卡的情况，这里假设一张 GPU 能先接四条，剩下八条只能排队。",
+          "label": "四条请求用满缓存预算",
+          "narration": "假设这次显存留给缓存的空间，刚好够前四条请求同时生成，另外八条先排队。",
           "phase": [
             0,
             4700
           ],
           "id": "S01.3",
-          "estimatedSeconds": 10
+          "estimatedSeconds": 9
         },
         {
-          "label": "第五条等待第一条完成",
-          "narration": "第五条问的是晚餐吃什么，它得等到第一条完成，GPU 上才有空位。",
+          "label": "第 05 条等待缓存释放",
+          "narration": "第五条是「推荐一道晚餐」。它已经到了，但得等正在生成的请求释放缓存。",
           "phase": [
             4700,
             8500
           ],
           "id": "S01.8",
           "frame": 3,
-          "estimatedSeconds": 9
+          "estimatedSeconds": 8
         },
         {
-          "label": "第五条开始计算",
-          "narration": "空位一出现，第五条就从队列移进 GPU，开始生成回答。",
+          "label": "释放的缓存交给第 05 条",
+          "narration": "第一条答完，腾出了足够的空间，调度器就能安排第五条开始算。",
           "phase": [
             8500,
             10500
           ],
           "id": "S01.9",
           "frame": 3,
-          "estimatedSeconds": 8
+          "estimatedSeconds": 7
         },
         {
-          "label": "标出首字出现的时刻",
-          "narration": "从点发送到看到首字，中间既有排队的时间，也有开始执行后的等待。",
+          "label": "标出首段文字出现的时刻",
+          "narration": "第五条比前四条多等了一段队列时间，轮到它以后，还要等模型算出回答的开头。",
           "phase": [
             10500,
             12400
           ],
           "id": "S01.10",
           "frame": 3,
-          "estimatedSeconds": 9
+          "estimatedSeconds": 8
         },
         {
           "label": "重放单卡分配",
-          "narration": "我们拿这同一批请求重放一遍，单卡时第五条还在队列里。",
+          "narration": "用同一批问题再试一次，先看一张卡。第五条还是得等。",
           "phase": [
             16200,
             19500
           ],
           "id": "S01.11",
           "frame": 3,
-          "estimatedSeconds": 8
+          "estimatedSeconds": 6
         },
         {
           "label": "重放双卡分配",
-          "narration": "换成两张 GPU，第五条第一批就能算，队列也缩短到四条。",
+          "narration": "两张卡各放一份完整模型，分开接请求。这样，第五条一开始就能在第二张卡上算。",
           "phase": [
             19500,
             22600
           ],
           "id": "S01.12",
           "frame": 3,
-          "estimatedSeconds": 8
+          "estimatedSeconds": 9
         },
         {
-          "label": "标出额外的设备开销",
-          "narration": "多开一张卡会增加运行开销，实际每卡能接多少还得看模型、输入长度、缓存和调度。",
+          "label": "从队列转向 GPU 与显存",
+          "narration": "加卡有成本。想弄清一张卡还能多接多少请求，得先看看显存里放了什么，GPU 又在算什么。",
           "phase": [
             22600,
             24100
           ],
           "id": "S01.13",
           "frame": 3,
-          "estimatedSeconds": 11
+          "estimatedSeconds": 9
         }
       ],
-      "estimatedSeconds": 113,
+      "estimatedSeconds": 97,
       "transition": "读完后按 Space，进入下一页第一句。",
       "demo": {
         "question": "什么是人工智能？",
@@ -431,8 +447,8 @@ window.COURSE = {
           "帮我拟一个标题",
           "算一下这笔账"
         ],
-        "activeSlots": 4,
-        "followUp": "再举一个例子"
+        "followUp": "再举一个例子",
+        "cacheCapacity": 4
       }
     },
     {
@@ -931,15 +947,15 @@ window.COURSE = {
           "estimatedSeconds": 9
         },
         {
-          "label": "计算单元收到数据后开始工作",
-          "narration": "灰色那段还在等数据，块一到，浅绿色的计算单元才亮起来。",
+          "label": "算力闲置时仍在搬数据",
+          "narration": "计算单元还有空闲，却得等显存把数据送过来。传得太慢，多加计算单元也未必能加快这一轮。",
           "phase": [
             1440,
             1820
           ],
           "id": "S05.6",
           "frame": 2,
-          "estimatedSeconds": 8
+          "estimatedSeconds": 9
         },
         {
           "label": "对照容量不足时被拒绝的块",
@@ -966,7 +982,7 @@ window.COURSE = {
           "estimatedSeconds": 9
         }
       ],
-      "estimatedSeconds": 73,
+      "estimatedSeconds": 74,
       "transition": "读完后按 Space，进入下一页第一句。"
     },
     {
@@ -1491,105 +1507,105 @@ window.COURSE = {
       "steps": [
         {
           "label": "显示输入张量",
-          "narration": "这段 PyTorch 代码先用一个张量存输入，里面是二和一。",
+          "narration": "PyTorch 用张量装这些数。先看输入 x。",
           "focus": [
             "x = torch.tensor([2., 1.])",
             "x = [2, 1]"
           ],
           "id": "S10.0",
-          "estimatedSeconds": 8
+          "estimatedSeconds": 4
         },
         {
           "label": "显示参数张量",
-          "narration": "另一个张量存参数一和负三，真实模型还会用矩阵和维度更多的数组来存数据。",
+          "narration": "模型参数放在另一个张量 w 里。",
           "focus": [
             "w = torch.tensor([1., -3.], requires_grad=True)",
             "w = [1, −3]"
           ],
           "id": "S10.4",
           "frame": 0,
-          "estimatedSeconds": 10
+          "estimatedSeconds": 3
         },
         {
           "label": "计算前向输出",
-          "narration": "执行 y 等于 x 乘 w 这一行，把对应位置的两个数相乘再相加，结果是负一。",
+          "narration": "执行这一行，输入和参数对应相乘，再把结果相加，得到负一。",
           "id": "S10.1",
-          "estimatedSeconds": 12
+          "estimatedSeconds": 7
         },
         {
           "label": "定位前向计算的代码行",
-          "narration": "大模型会组合很多这样的张量运算，支持的运算可以交给 CPU 或 GPU 执行。",
+          "narration": "这一行就是前向计算。大模型把许多这样的张量运算接在一起。",
           "focus": [
             "y = x @ w"
           ],
           "id": "S10.5",
           "frame": 1,
-          "estimatedSeconds": 11
+          "estimatedSeconds": 6
         },
         {
-          "label": "根据目标计算平方误差",
-          "narration": "训练时假设目标是一，负一和它差了二，所以平方误差是四。",
+          "label": "把前向结果交给损失函数",
+          "narration": "训练时，用预测和目标算损失。",
           "phase": [
             0,
-            1800
+            1250
           ],
           "id": "S10.2",
-          "estimatedSeconds": 8
+          "estimatedSeconds": 4
         },
         {
-          "label": "反向求出两个梯度",
-          "narration": "执行 backward 之后，两个参数的梯度分别是负八和负四。",
+          "label": "调用自动求导",
+          "narration": "调用 backward，PyTorch 就会自动求出梯度。",
           "phase": [
-            4500,
-            5500
+            1250,
+            2200
           ],
           "id": "S10.6",
           "frame": 2,
-          "estimatedSeconds": 8
+          "estimatedSeconds": 5
         },
         {
-          "label": "用梯度更新两个参数",
-          "narration": "把各自的梯度乘十分之一再从原参数里减掉，得到新的参数一点八和负二点六。",
+          "label": "根据梯度更新参数",
+          "narration": "更新参数时，直接用刚求出的梯度。",
           "phase": [
-            9500,
-            10600
+            2200,
+            3150
           ],
           "id": "S10.7",
           "frame": 2,
-          "estimatedSeconds": 10
+          "estimatedSeconds": 4
         },
         {
-          "label": "指出实际训练中的优化器职责",
-          "narration": "这里手写了更新公式，实际训练通常会把这步交给优化器。",
+          "label": "指出优化器负责更新",
+          "narration": "实际训练通常由优化器执行这一步。",
           "focus": [
             "$ .foundation-note"
           ],
           "id": "S10.8",
           "frame": 2,
-          "estimatedSeconds": 8
+          "estimatedSeconds": 4
         },
         {
-          "label": "保留推理所需的前向代码",
-          "narration": "同样的前向计算也能用来推理，服务只需要用已有参数得到输出。",
+          "label": "推理只需前向计算",
+          "narration": "在线推理用训好的参数做前向计算。",
           "focus": [
             "y = x @ w",
             "2 × 1 + 1 × (−3) = −1"
           ],
           "id": "S10.3",
-          "estimatedSeconds": 9
+          "estimatedSeconds": 4
         },
         {
-          "label": "指出前向计算外的服务工作",
-          "narration": "要对外提供服务，还得在模型外面接收请求、安排执行和保留缓存。",
+          "label": "从模型调用转向服务",
+          "narration": "当很多人一起提问，还要有人决定下一次前向该算哪些输入。",
           "focus": [
             "服务还要接收请求、安排执行、保留缓存。"
           ],
           "id": "S10.9",
           "frame": 3,
-          "estimatedSeconds": 9
+          "estimatedSeconds": 6
         }
       ],
-      "estimatedSeconds": 93,
+      "estimatedSeconds": 47,
       "transition": "读完后按 Space，进入下一页第一句。"
     },
     {
@@ -1607,28 +1623,29 @@ window.COURSE = {
         "Megatron-LM"
       ],
       "sources": [
-        "distributed"
+        "distributed",
+        "fsdp"
       ],
       "steps": [
         {
-          "label": "单卡训练状态超出容量",
-          "narration": "模型和训练状态如果放不进一张卡，就得考虑怎么把工作分到多张卡。",
+          "label": "区分单卡的容量和训练速度",
+          "narration": "训练要用多张卡，通常是因为一张卡装不下模型和训练状态，或者虽然装得下，处理数据却太慢。",
           "id": "S11.0",
-          "estimatedSeconds": 9
+          "estimatedSeconds": 10
         },
         {
-          "label": "指出多卡要权衡的通信开销",
-          "narration": "分法一变，设备之间要交换的数据也会变，这部分传输同样会花时间。",
+          "label": "根据限制选择分工",
+          "narration": "装得下的时候，可以让不同 GPU 同时处理不同的数据。",
           "focus": [
-            "$ .foundation-note"
+            "装得下，训练仍可能太慢"
           ],
           "id": "S11.4",
           "frame": 0,
-          "estimatedSeconds": 9
+          "estimatedSeconds": 5
         },
         {
           "label": "各卡拿到完整模型和不同数据",
-          "narration": "数据并行时，两张 GPU 各放一份完整模型，分别处理不同的数据。",
+          "narration": "这叫数据并行。图里两张 GPU 各保留一套完整模型，分别处理一批数据。",
           "phase": [
             0,
             2780
@@ -1637,7 +1654,7 @@ window.COURSE = {
             "完整模型副本"
           ],
           "id": "S11.1",
-          "estimatedSeconds": 9
+          "estimatedSeconds": 8
         },
         {
           "label": "跟踪两卡同步梯度",
@@ -1654,8 +1671,8 @@ window.COURSE = {
           "estimatedSeconds": 9
         },
         {
-          "label": "把同一层张量分到两卡",
-          "narration": "张量并行是把同一层的张量和计算拆开，让每张卡只负责一部分。",
+          "label": "单卡装不下时拆分一层",
+          "narration": "如果连模型都装不下，可以把一层的参数和计算拆给多张卡，这叫张量并行。",
           "focus": [
             "同一层的张量分片",
             "GPU 0",
@@ -1686,18 +1703,22 @@ window.COURSE = {
             "模型后半阶段"
           ],
           "id": "S11.3",
-          "estimatedSeconds": 9
-        },
-        {
-          "label": "让微批次沿阶段前进",
-          "narration": "第一张卡把一个微批次交给第二张，就可以着手处理下一个微批次。",
+          "estimatedSeconds": 9,
           "phase": [
             0,
-            7100
+            0
+          ]
+        },
+        {
+          "label": "推进微批次并展示训练状态分片",
+          "narration": "第一张卡交出一个微批次，就能接着算下一个。显存吃紧时，像 FSDP 这样的办法还可以把参数、梯度和优化器状态分到不同卡上。",
+          "phase": [
+            0,
+            7450
           ],
           "id": "S11.7",
           "frame": 3,
-          "estimatedSeconds": 9
+          "estimatedSeconds": 13
         }
       ],
       "estimatedSeconds": 72,
@@ -1724,47 +1745,47 @@ window.COURSE = {
       ],
       "steps": [
         {
-          "label": "定位三个用户问题",
-          "narration": "模型训好以后，三个用户发来了三个问题，里面有简短问答，也有一篇要总结的文章。",
-          "phase": [
-            0,
-            420
-          ],
+          "label": "定位三条长度不同的输入",
+          "narration": "模型刚训好，三个用户就来提问了。有人只发一句话，有人附了一整篇文章。",
           "focus": [
             "什么是人工智能？",
             "总结这篇文章 ＋ 附文",
             "推荐一道晚餐"
           ],
           "id": "S12.0",
-          "estimatedSeconds": 11
+          "estimatedSeconds": 8,
+          "phase": [
+            0,
+            420
+          ]
         },
         {
-          "label": "观察三条请求的执行轮次",
-          "narration": "看右边的记录，A 和 B 先开始，到第二轮刚来的 C 才加入，B 还在继续生成。",
+          "label": "区分等待处理和正在生成",
+          "narration": "调用一次模型只能完成当轮计算。服务还得决定谁先算，谁得等，以及下一轮接着处理谁。",
           "phase": [
             420,
-            3910
+            2000
           ],
           "id": "S12.4",
           "frame": 0,
-          "estimatedSeconds": 12
+          "estimatedSeconds": 9
         },
         {
-          "label": "展示三条输入的缓存格",
-          "narration": "推理引擎要给每条请求留出自己的缓存，这些小格对应输入位置。",
+          "label": "展示各请求的输入缓存",
+          "narration": "推理引擎会为正在执行的请求保留各自的状态，下一轮才能沿着各自的上下文继续生成。",
           "id": "S12.1",
           "estimatedSeconds": 9
         },
         {
-          "label": "对照长文与简短提问的占用",
-          "narration": "B 附了一篇文章，所以光是处理输入，就比 A 多占了不少缓存位置。",
+          "label": "对照长文和短问题的输入长度",
+          "narration": "附了文章的 B 输入更长，要给它留的缓存空间也更大。",
           "focus": [
             "输入 5 个 Token",
             "输入 28 个 Token"
           ],
           "id": "S12.5",
           "frame": 1,
-          "estimatedSeconds": 10
+          "estimatedSeconds": 6
         },
         {
           "label": "展示 vLLM 与 SGLang",
@@ -1787,26 +1808,26 @@ window.COURSE = {
           "estimatedSeconds": 12
         },
         {
-          "label": "把调度、缓存和调用模型连起来",
-          "narration": "每一轮，引擎先选出要执行的请求，再用各自的状态调用模型。",
+          "label": "把组批、缓存和模型调用连起来",
+          "narration": "这就是推理引擎在模型外面做的事。它挑选本轮要算的请求，找出各自的缓存，再调用模型。",
           "focus": [
             "每轮挑选请求 → 保留各自的 KV → 调用模型计算"
           ],
           "id": "S12.3",
-          "estimatedSeconds": 8
+          "estimatedSeconds": 9
         },
         {
-          "label": "定位 B 的持续执行",
-          "narration": "A 生成完退出后，B 还可以用自己的缓存接着算。",
+          "label": "从职责转向单条请求",
+          "narration": "接下来跟着 A 走一遍，看看它是在哪一步等，又是在哪一步开始算的。",
           "focus": [
-            "总结这篇文章 ＋ 附文"
+            "什么是人工智能？"
           ],
           "id": "S12.7",
           "frame": 3,
-          "estimatedSeconds": 8
+          "estimatedSeconds": 7
         }
       ],
-      "estimatedSeconds": 77,
+      "estimatedSeconds": 67,
       "transition": "读完后按 Space，进入下一页第一句。"
     },
     {
@@ -1859,14 +1880,14 @@ window.COURSE = {
           "estimatedSeconds": 9
         },
         {
-          "label": "定位调度器",
-          "narration": "调度器会看执行位置和显存还有多少，再决定下一轮安排哪些请求。",
+          "label": "定位做准入决定的调度器",
+          "narration": "到调度器这里，请求只是入了队。等这一轮有计算和缓存预算，A 才能被选中。",
           "focus": [
             "Scheduler"
           ],
           "id": "S13.5",
           "frame": 1,
-          "estimatedSeconds": 9
+          "estimatedSeconds": 8
         },
         {
           "label": "把 A 从队列交给 Worker",
@@ -1879,15 +1900,15 @@ window.COURSE = {
           "estimatedSeconds": 9
         },
         {
-          "label": "定位请求 A 的独立缓存",
-          "narration": "这次计算访问的是 A 自己的缓存，留下来的状态下一轮还会用到。",
+          "label": "沿 A 的执行路径找到缓存",
+          "narration": "Worker 调用 GPU 执行模型，A 在这轮留下的缓存会交给自己的下一轮。",
           "focus": [
             "KV Cache",
             "使用请求自己的缓存"
           ],
           "id": "S13.6",
           "frame": 2,
-          "estimatedSeconds": 9
+          "estimatedSeconds": 8
         },
         {
           "label": "沿返回路径把输出送回聊天窗口",
@@ -1911,7 +1932,7 @@ window.COURSE = {
           "estimatedSeconds": 8
         }
       ],
-      "estimatedSeconds": 73,
+      "estimatedSeconds": 71,
       "transition": "读完后按 Space，进入下一页第一句。"
     },
     {
@@ -2059,7 +2080,8 @@ window.COURSE = {
       ],
       "sources": [
         "cache",
-        "vllm"
+        "vllm",
+        "vllm_scheduler"
       ],
       "steps": [
         {
@@ -2176,9 +2198,42 @@ window.COURSE = {
           "id": "S15.10",
           "frame": 3,
           "estimatedSeconds": 9
+        },
+        {
+          "id": "S15.11",
+          "frame": 3,
+          "label": "对照长输入 Prefill 的并行计算",
+          "narration": "还记得算力和显存带宽吗？输入很长时，Prefill 可以让许多位置共用读进来的权重，同时做大量矩阵运算。",
+          "estimatedSeconds": 12,
+          "phase": [
+            0,
+            1550
+          ]
+        },
+        {
+          "id": "S15.12",
+          "frame": 3,
+          "label": "低并发 Decode 反复读权重和 KV",
+          "narration": "并发低时，Decode 每条请求每轮通常只推进一个位置，权重和已有的 KV 却要反复读，速度就容易受显存带宽限制。",
+          "estimatedSeconds": 12,
+          "phase": [
+            1550,
+            3800
+          ]
+        },
+        {
+          "id": "S15.13",
+          "frame": 3,
+          "label": "连接输入长度和输出长度",
+          "narration": "长输入会加重首字出现前的计算，长输出则需要更多轮 Decode，用户得等更久才能看完。",
+          "estimatedSeconds": 9,
+          "phase": [
+            3800,
+            4600
+          ]
         }
       ],
-      "estimatedSeconds": 96,
+      "estimatedSeconds": 129,
       "transition": "读完后按 Space，进入下一页第一句。"
     },
     {
@@ -2290,7 +2345,8 @@ window.COURSE = {
       ],
       "sources": [
         "cache",
-        "paged"
+        "paged",
+        "llama3"
       ],
       "steps": [
         {
@@ -2323,14 +2379,14 @@ window.COURSE = {
           "estimatedSeconds": 11
         },
         {
-          "label": "对应示意格子和实际字节数",
-          "narration": "一格实际有多少字节，还得看层数、KV 头数、每头维度和存储精度。",
+          "label": "从格子对应到一个 Token 的缓存",
+          "narration": "这里一格代表一个 Token 的缓存。等会儿换成一个真实模型，看看一格要用多少显存。",
           "focus": [
             "$ .inference-foot"
           ],
           "id": "S17.5",
           "frame": 1,
-          "estimatedSeconds": 9
+          "estimatedSeconds": 8
         },
         {
           "label": "给 B 分配五格",
@@ -2379,10 +2435,53 @@ window.COURSE = {
           "id": "S17.8",
           "frame": 3,
           "estimatedSeconds": 10
+        },
+        {
+          "id": "S17.9",
+          "frame": 3,
+          "label": "按真实模型配置估算每个 Token 的 KV",
+          "narration": "用 Llama 3.1 8B 举例。每层有八个 KV 头，每头存一百二十八个数，K 和 V 都要存。三十二层用每个数两字节的 BF16，算下来，每个 Token 要一百二十八 KiB。",
+          "estimatedSeconds": 19,
+          "phase": [
+            0,
+            600
+          ]
+        },
+        {
+          "id": "S17.10",
+          "frame": 3,
+          "label": "让单条对话从 1024 增长到 8192 个 Token",
+          "narration": "一条对话如果已经缓存了一千零二十四个 Token，就占一百二十八 MiB。留到八千一百九十二个 Token，就要一 GiB。",
+          "estimatedSeconds": 13,
+          "phase": [
+            600,
+            2000
+          ]
+        },
+        {
+          "id": "S17.11",
+          "frame": 3,
+          "label": "让 12 条长对话同时占用缓存",
+          "narration": "这样的长对话如果有十二条同时在跑，光各自的 KV 就要十二 GiB，模型权重和临时数据还得另留空间。",
+          "estimatedSeconds": 12,
+          "phase": [
+            2000,
+            3650
+          ]
         }
       ],
-      "estimatedSeconds": 84,
-      "transition": "读完后按 Space，进入下一页第一句。"
+      "estimatedSeconds": 127,
+      "transition": "读完后按 Space，进入下一页第一句。",
+      "demo": {
+        "model": "Llama 3.1 8B",
+        "layers": 32,
+        "kvHeads": 8,
+        "headDimension": 128,
+        "bytesPerElement": 2,
+        "shortTokens": 1024,
+        "longTokens": 8192,
+        "longRequests": 12
+      }
     },
     {
       "id": "S18",
@@ -2503,76 +2602,90 @@ window.COURSE = {
       ],
       "steps": [
         {
-          "label": "从六格物理池里取出 P2",
-          "narration": "右边是一个六格的共享物理池，刚进来的请求 A 拿到的是二号块。",
+          "label": "让 A 从共享池领取缓存块",
+          "narration": "请求 A 刚进来时，只领够用的块。",
           "id": "S19.0",
-          "estimatedSeconds": 9
+          "estimatedSeconds": 4
         },
         {
-          "label": "核对第一条块表记录",
-          "narration": "左边记下了这次分配，A 的零号逻辑块以后就到二号物理块去找。",
+          "label": "观察 A 尚有空余的缓存块",
+          "narration": "后续 Token 先填进这一块，填满了才需要再申请。",
           "focus": [
-            "$[data-mapping-owner=\"A\"][data-logical-block=\"0\"]",
             "$[data-physical-block=\"2\"]"
           ],
           "id": "S19.4",
           "frame": 0,
-          "estimatedSeconds": 9
+          "estimatedSeconds": 6
         },
         {
-          "label": "为 A 分配第二个物理块",
-          "narration": "A 的序列变长，原来的块装满了，系统再给它分配一个空闲的五号块。",
+          "label": "为增长中的 A 再分一块",
+          "narration": "A 的历史长了，池子再给它一块空闲空间。",
           "id": "S19.1",
-          "estimatedSeconds": 10
+          "estimatedSeconds": 5
         },
         {
-          "label": "核对 A 的两条映射",
-          "narration": "现在块表里有两条记录，A 的逻辑顺序没变，实际位置分别是二号和五号。",
+          "label": "观察池中尚未分配的块",
+          "narration": "其余空闲块还能留给别的请求。",
           "focus": [
-            "$[data-mapping-owner=\"A\"]"
+            "$[data-physical-block][data-free=\"true\"]"
           ],
           "id": "S19.5",
           "frame": 1,
-          "estimatedSeconds": 10
+          "estimatedSeconds": 4
         },
         {
-          "label": "给 B 分配物理块一",
-          "narration": "请求 B 也进入服务，系统把空闲的一号块分给它。",
+          "label": "让 B 向同一个池子申请",
+          "narration": "B 进来时，就从这批空闲块里领一块。",
           "id": "S19.2",
-          "estimatedSeconds": 8
+          "estimatedSeconds": 5
         },
         {
-          "label": "区分 B 的块表与 A 的块表",
-          "narration": "B 从同一个池子拿空间，访问历史时用的是自己那条映射。",
+          "label": "查看 A 与 B 的独立分配",
+          "narration": "池子是共享的，A 和 B 各用自己领到的块。",
           "focus": [
-            "$[data-mapping-owner=\"B\"]"
+            "$[data-physical-block][data-owner=\"B\"]"
           ],
           "id": "S19.6",
           "frame": 2,
-          "estimatedSeconds": 8
+          "estimatedSeconds": 5
         },
         {
           "label": "让 A 的两个块依次归还",
-          "narration": "A 答完以后，如果二号和五号块没有其他引用，也无需继续保留，就可以还给空闲池。",
+          "narration": "A 答完了。它的块如果没有其他引用，也无需保留，就会回到空闲池。",
           "phase": [
             0,
             3810
           ],
           "id": "S19.3",
-          "estimatedSeconds": 11
+          "estimatedSeconds": 9
         },
         {
-          "label": "确认 B 的块继续保留",
-          "narration": "B 还在执行，所以它用的一号块和对应的表项继续保留。",
+          "label": "确认 B 仍然在执行",
+          "narration": "B 还在生成，自己的块继续留着。",
           "focus": [
             "$[data-physical-block=\"1\"]"
           ],
           "id": "S19.7",
           "frame": 3,
-          "estimatedSeconds": 8
+          "estimatedSeconds": 4,
+          "phase": [
+            3810,
+            3900
+          ]
+        },
+        {
+          "id": "S19.8",
+          "frame": 3,
+          "label": "让 C 复用 A 归还的块",
+          "narration": "再来一条 C，就可以用刚从 A 手里收回的块。",
+          "estimatedSeconds": 6,
+          "phase": [
+            3900,
+            5150
+          ]
         }
       ],
-      "estimatedSeconds": 73,
+      "estimatedSeconds": 48,
       "transition": "读完后按 Space，进入下一页第一句。"
     },
     {
@@ -2590,75 +2703,85 @@ window.COURSE = {
       ],
       "sources": [
         "orca",
-        "vllm"
+        "vllm",
+        "vllm_scheduler"
       ],
       "steps": [
         {
-          "label": "对照两个批处理时间表",
-          "narration": "把多条请求放在一起执行叫批处理，这里用同样的三条请求对照两种安排。",
+          "label": "对照两种批处理的 Decode 时间表",
+          "narration": "A 还要生成两轮，B 要四轮。两种批处理都让它们先一起算。",
           "focus": [
             "固定批次",
             "连续批处理"
           ],
           "id": "S20.0",
-          "estimatedSeconds": 10
+          "estimatedSeconds": 7,
+          "phase": [
+            0,
+            350
+          ]
         },
         {
-          "label": "观察固定批次的等待位置",
-          "narration": "上面是固定批次，A 和 B 同时开始，即使 A 两轮就结束，C 也要等 B 跑完第四轮。",
-          "focus": [
-            "C 等待下一批"
-          ],
+          "label": "让 C 到达两种批次的队列",
+          "narration": "第一轮结束后，C 到了。固定批次要等 B 跑完第四轮，才能开始处理 C。",
           "id": "S20.4",
           "frame": 0,
-          "estimatedSeconds": 13
+          "estimatedSeconds": 8,
+          "phase": [
+            350,
+            960
+          ]
         },
         {
-          "label": "第二轮把 C 加入执行集合",
-          "narration": "换成连续批处理，如果 C 已经做好 Prefill 且资源够用，调度器第二轮就能让它加入 Decode。",
+          "label": "连续批处理先安排 C 做 Prefill",
+          "narration": "连续批处理可以在批次还没结束时安排新工作。这里预算够，调度器先让 C 做 Prefill，处理输入并建立自己的缓存。",
           "id": "S20.1",
-          "estimatedSeconds": 12
+          "estimatedSeconds": 12,
+          "phase": [
+            0,
+            1750
+          ]
         },
         {
-          "label": "对照同一轮的 C",
-          "narration": "同样是第二轮，下面的 C 已经在跟 A 和 B 一起算，上面的 C 还在等。",
-          "focus": [
-            "C 在第 2 轮加入",
-            "C 仍在等"
-          ],
+          "label": "让完成 Prefill 的 C 加入第二轮 Decode",
+          "narration": "C 的 Prefill 算出首个输出后，就赶上了图里的第二轮，和 A、B 一起做 Decode。上面那条 C 还在等。",
           "id": "S20.5",
           "frame": 1,
-          "estimatedSeconds": 12
+          "estimatedSeconds": 10,
+          "phase": [
+            1750,
+            3600
+          ]
         },
         {
           "label": "让完成的 A 退出",
-          "narration": "A 跑完第二轮就退出，到了第三轮，执行集合里只剩继续生成的 B 和 C。",
+          "narration": "第二轮结束，A 答完退出。第三轮只剩 B 和 C。",
           "id": "S20.2",
-          "estimatedSeconds": 11
+          "estimatedSeconds": 6
         },
         {
-          "label": "观察第三轮中仍在执行的请求",
-          "narration": "B 和 C 各自生成完再退出，留下的执行位置可以交给别的请求。",
+          "label": "观察第三轮仍在执行的两条请求",
+          "narration": "引擎每轮都能重新组批，让还没答完的请求继续算。",
           "focus": [
             "$[data-live-status=\"running\"][data-live-request=\"B\"],[data-live-status=\"running\"][data-live-request=\"C\"]"
           ],
           "id": "S20.6",
           "frame": 2,
-          "estimatedSeconds": 10
+          "estimatedSeconds": 6
         },
         {
-          "label": "对照 C 完成的轮次",
-          "narration": "固定批次要到第六轮才完成 C，连续批处理在这个例子里第三轮就完成了它。",
+          "label": "对照 C 完成的 Decode 轮次",
+          "narration": "这次 C 在第三轮就答完了。固定批次里，它要等到第五轮才开始 Decode，第六轮才答完。",
           "focus": [
             "C：第 6 轮完成",
             "C：第 3 轮完成"
           ],
           "id": "S20.3",
-          "estimatedSeconds": 10
+          "estimatedSeconds": 9
         },
         {
-          "label": "定位每轮组批的约束",
-          "narration": "每轮能接多少工作，还得看显存、Token 预算和延迟目标，每一轮实际花的时间也可能不同。",
+          "label": "定位组批的资源与延迟约束",
+          "narration": "每轮接多少工作，要看剩余缓存、Token 预算和延迟目标。图里比的是执行顺序，每轮实际花的时间可能不同。",
           "focus": [
             "按显存、Token 预算与延迟目标组批"
           ],
@@ -2667,7 +2790,7 @@ window.COURSE = {
           "estimatedSeconds": 11
         }
       ],
-      "estimatedSeconds": 89,
+      "estimatedSeconds": 69,
       "transition": "读完后按 Space，进入下一页第一句。"
     },
     {
@@ -3125,7 +3248,8 @@ window.COURSE = {
       ],
       "sources": [
         "k8s",
-        "ray"
+        "ray",
+        "vllm_scheduler"
       ],
       "steps": [
         {
@@ -3188,39 +3312,50 @@ window.COURSE = {
           "estimatedSeconds": 11
         },
         {
-          "label": "定位各自接到工作的 Worker",
-          "narration": "除了提交任务，程序也可以让带状态的工作单元协作，Ray 还提供了训练和服务等场景的组件。",
+          "label": "区分 Ray 的 Task 与 Actor",
+          "narration": "一次性工作可以提交成 Task。需要保留状态时，可以交给 Actor，比如让它加载模型后反复接活。",
           "focus": [
             "Ray Worker 0",
             "Ray Worker 1"
           ],
           "id": "S25.7",
           "frame": 2,
-          "estimatedSeconds": 12
-        },
-        {
-          "label": "定位 Kubernetes 管理的工作负载",
-          "narration": "两者可以一起用，比如让 Kubernetes 给运行 Ray Worker 的容器分配节点和资源。",
-          "focus": [
-            "Kubernetes",
-            "容器工作负载"
-          ],
-          "id": "S25.3",
           "estimatedSeconds": 10
         },
         {
-          "label": "定位 Ray 的任务分发",
-          "narration": "容器启动后，Ray 再把程序任务交给这些 Worker，模型每轮算哪些请求仍由推理系统安排。",
+          "label": "定位 Kubernetes 给 Pod 选节点",
+          "narration": "把三种调度放在一张图上。Kubernetes 给 Pod 选节点，控制器负责维持副本。",
+          "focus": [
+            "Kubernetes",
+            "Pod → 节点"
+          ],
+          "id": "S25.3",
+          "estimatedSeconds": 8
+        },
+        {
+          "label": "定位 Ray 给 Task 或 Actor 分配 Worker",
+          "narration": "这套部署如果用了 Ray，就由 Ray 在集群里安排 Task 和 Actor 跑在哪个 Worker 上。",
           "focus": [
             "Ray",
-            "分发任务"
+            "Task / Actor → Worker"
           ],
           "id": "S25.8",
           "frame": 3,
-          "estimatedSeconds": 11
+          "estimatedSeconds": 9
+        },
+        {
+          "id": "S25.9",
+          "frame": 3,
+          "label": "定位引擎每轮选择请求和 Token",
+          "narration": "真正到了模型执行这一步，每轮挑哪些请求、算哪些 Token，由推理引擎自己的调度器决定。",
+          "estimatedSeconds": 9,
+          "focus": [
+            "推理引擎",
+            "请求 / Token → 本轮批次"
+          ]
         }
       ],
-      "estimatedSeconds": 94,
+      "estimatedSeconds": 97,
       "transition": "读完后按 Space，进入下一页第一句。"
     },
     {
@@ -3243,14 +3378,14 @@ window.COURSE = {
       ],
       "steps": [
         {
-          "label": "展示两个各装有完整模型的副本",
-          "narration": "假设一张 GPU 放得下整个模型，我们就在两张卡上各跑一份完整的模型服务。",
+          "label": "回收开场的两个完整模型副本",
+          "narration": "开头两张卡分着接请求，用的就是左边这种方案。每张卡放一份完整模型，各跑一个服务副本。",
           "focus": [
             "服务副本 1",
             "服务副本 2"
           ],
           "id": "S26.0",
-          "estimatedSeconds": 10
+          "estimatedSeconds": 9
         },
         {
           "label": "定位独立权重和缓存",
@@ -3343,7 +3478,7 @@ window.COURSE = {
           "estimatedSeconds": 9
         }
       ],
-      "estimatedSeconds": 89,
+      "estimatedSeconds": 88,
       "transition": "读完后按 Space，进入下一页第一句。"
     },
     {
@@ -3442,14 +3577,14 @@ window.COURSE = {
           "estimatedSeconds": 10
         },
         {
-          "label": "让 A 和 B 同时占用两个执行位置",
-          "narration": "并发是同一时刻在系统里的请求数，这个例子里 A 和 B 有一段时间同时占着两个执行位置。",
+          "label": "用 A 和 B 说明并发",
+          "narration": "并发数是同一时刻系统里有多少条未完成的请求。在这个示意里，A 和 B 正在执行。",
           "phase": [
             0,
             1720
           ],
           "id": "S27.3",
-          "estimatedSeconds": 13
+          "estimatedSeconds": 9
         },
         {
           "label": "为 C 揭示一段等待时间",
@@ -3463,8 +3598,8 @@ window.COURSE = {
           "estimatedSeconds": 7
         },
         {
-          "label": "A 完成后让 C 开始执行",
-          "narration": "到 A 做完，C 才接过腾出来的位置开始算。",
+          "label": "A 释放缓存后让 C 开始执行",
+          "narration": "等 A 答完，腾出足够的缓存，C 才能开始算。",
           "phase": [
             4900,
             5870
@@ -3474,17 +3609,17 @@ window.COURSE = {
           "estimatedSeconds": 7
         },
         {
-          "label": "对照同时计算和个体等待",
-          "narration": "更多请求一起算时，总吞吐可能提高，单个用户的等待时间也可能变长。",
+          "label": "把指标交给下一页的监控案例",
+          "narration": "一起算的请求多了，服务每秒可能输出更多 Token，用户也可能等得更久。接下来看同一组指标怎么帮我们找原因。",
           "focus": [
             "$[data-metric-span=\"wait\"]"
           ],
           "id": "S27.11",
           "frame": 3,
-          "estimatedSeconds": 9
+          "estimatedSeconds": 11
         }
       ],
-      "estimatedSeconds": 115,
+      "estimatedSeconds": 113,
       "transition": "读完后按 Space，进入下一页第一句。"
     },
     {
@@ -3505,31 +3640,30 @@ window.COURSE = {
       ],
       "sources": [
         "metrics",
-        "cuda"
+        "cuda",
+        "vllm_scheduler"
       ],
       "steps": [
         {
-          "label": "标出低负载的并发和吞吐",
-          "narration": "用这组模拟数据练习读监控面板，低负载下只有两个并发请求，服务每秒输出六十个 Token。",
+          "label": "收到变慢反馈并调出低负载基线",
+          "narration": "有用户说，今天等半天才看到回答的开头。我们用一组模拟监控排查，先调出低负载时的记录。",
           "focus": [
             "低负载",
-            "60",
             "$ .p-load-state strong"
           ],
           "id": "S28.0",
-          "estimatedSeconds": 11
+          "estimatedSeconds": 10
         },
         {
-          "label": "观察显存与队列的余量",
-          "narration": "这时队列是空的，显存不到一半，首 Token 的等待也比较短。",
+          "label": "确认低负载时的 TTFT 基线",
+          "narration": "低负载时，两条请求同时在系统里，队列是空的。从发出请求到看见首个 Token，花了一百八十毫秒。",
           "focus": [
-            "48%",
             "等待队列",
             "$[data-metric=\"ttft\"]"
           ],
           "id": "S28.4",
           "frame": 0,
-          "estimatedSeconds": 8
+          "estimatedSeconds": 11
         },
         {
           "label": "把吞吐曲线推进到中负载",
@@ -3555,60 +3689,62 @@ window.COURSE = {
           "estimatedSeconds": 9
         },
         {
-          "label": "查看八个排队位置",
-          "narration": "下面的队列却排了八条请求，用户看到第一个 Token 前要等得更久。",
+          "label": "对照高负载 TTFT 和八条等待请求",
+          "narration": "现在有八条请求在排队。首 Token 延迟从一百八十毫秒升到了一千三百毫秒。",
           "focus": [
             "等待队列",
-            "$[data-queue-slot][data-occupied=\"true\"]"
+            "$[data-queue-slot][data-occupied=\"true\"]",
+            "$[data-metric=\"ttft\"]"
           ],
           "id": "S28.6",
           "frame": 2,
           "estimatedSeconds": 9
         },
         {
-          "label": "查看显存逼近上限",
-          "narration": "显存也到了百分之九十四，再加压就有可能申请失败，遇到这种情况要评估限流、调度或扩容。",
+          "label": "查看高负载下的显存占用",
+          "narration": "显存占用到了百分之九十四。这个数字值得追查，下一步先把那一千三百毫秒拆开。",
           "focus": [
             "$[data-memory-percent=\"94\"]",
             "94%"
           ],
           "id": "S28.7",
           "frame": 2,
-          "estimatedSeconds": 12
+          "estimatedSeconds": 9
         },
         {
-          "label": "从总等待拆出排队时间",
-          "narration": "首 Token 延迟是一千三百毫秒，其中九百五十毫秒在排队，所以这个例子里先查队列。",
+          "label": "从 TTFT 拆出 950 毫秒排队",
+          "narration": "一千三百毫秒里，有九百五十毫秒在排队。要缩短这段等待，先查请求为什么进不去。",
           "phase": [
             0,
             1200
           ],
           "id": "S28.3",
-          "estimatedSeconds": 11
+          "estimatedSeconds": 10
         },
         {
-          "label": "定位剩余耗时和显存",
-          "narration": "再看剩下的时间花在哪儿，以及显存是不是也快用完了。",
-          "focus": [
-            "其余 350 ms",
-            "显存占用"
-          ],
+          "label": "核对 KV 缓存余量和每轮 Token 预算",
+          "narration": "先看还能不能给新请求分 KV 块，再看每轮 Token 预算是不是已经用满。单看总显存占用，分不出是哪条限制卡住了。",
           "id": "S28.8",
           "frame": 3,
-          "estimatedSeconds": 8
+          "estimatedSeconds": 11,
+          "phase": [
+            1200,
+            2350
+          ]
         },
         {
-          "label": "定位执行耗时的分析",
-          "narration": "GPU 利用率能提示设备有多忙，要找出具体是哪段执行慢，还得做性能分析，也就是 Profiling。",
-          "focus": [
-            "→ 执行耗时 / Profiling"
-          ],
+          "label": "区分控制流量、增加副本和分析执行",
+          "narration": "如果是流量太大，可以限流来控制队列，或者加副本分担请求。确认剩下的执行时间也偏长，再用性能分析去找慢的内核。",
           "id": "S28.9",
           "frame": 3,
-          "estimatedSeconds": 12
+          "estimatedSeconds": 13,
+          "phase": [
+            2350,
+            3600
+          ]
         }
       ],
-      "estimatedSeconds": 100,
+      "estimatedSeconds": 102,
       "transition": "读完后按 Space，进入下一页第一句。"
     },
     {
@@ -3635,17 +3771,17 @@ window.COURSE = {
       ],
       "steps": [
         {
-          "label": "找回开头的晚餐请求",
-          "narration": "回到开头那批请求，第五条在聊天窗口问的是晚餐吃什么。",
+          "label": "认出开头的第 05 条晚餐请求",
+          "narration": "回到开头的第五条请求。「推荐一道晚餐」比前四条晚看到回答。现在可以沿着它找原因。",
           "phase": [
             0,
             350
           ],
           "focus": [
-            "推荐一道晚餐？"
+            "推荐一道晚餐"
           ],
           "id": "S29.0",
-          "estimatedSeconds": 8
+          "estimatedSeconds": 9
         },
         {
           "label": "沿 API 路径验证输入和权限",
@@ -3659,8 +3795,8 @@ window.COURSE = {
           "estimatedSeconds": 8
         },
         {
-          "label": "把第五条送进等待队列",
-          "narration": "单卡上还在生成前四条回答，第五条只好先进队列等着。",
+          "label": "前四条用满缓存预算，第 05 条等待",
+          "narration": "请求到达时，前四条已经占满了这次可用的缓存预算。第五条得先留在队列里。",
           "phase": [
             2130,
             4280
@@ -3670,47 +3806,47 @@ window.COURSE = {
           "estimatedSeconds": 8
         },
         {
-          "label": "让第五条移出队列",
-          "narration": "现在轮到第五条了，调度器把它从队列交给 GPU。",
+          "label": "缓存释放后让第 05 条离开队列",
+          "narration": "第一条答完，归还了足够的缓存。调度器这才把第五条从队列交给 GPU。",
           "phase": [
             0,
             2320
           ],
           "id": "S29.1",
-          "estimatedSeconds": 7
+          "estimatedSeconds": 8
         },
         {
-          "label": "显示四个输入 Token",
-          "narration": "图里把“推荐一道晚餐”分成四段，接下来做 Prefill。",
+          "label": "沿用第 05 条的四段输入",
+          "narration": "它的输入在这张示意图里切成四个 Token。",
           "phase": [
             2320,
             3130
           ],
           "id": "S29.6",
           "frame": 1,
-          "estimatedSeconds": 7
+          "estimatedSeconds": 5
         },
         {
           "label": "运行 Prefill 并写入四份 KV",
-          "narration": "GPU 执行模型需要的内核，处理完四个位置，右边就留下四份 KV。",
+          "narration": "GPU 先做 Prefill，处理这四个输入位置，把它们的 KV 留给后续生成。",
           "phase": [
             3130,
             7420
           ],
           "id": "S29.7",
           "frame": 1,
-          "estimatedSeconds": 9
+          "estimatedSeconds": 7
         },
         {
           "label": "产生首个输出",
-          "narration": "处理完输入，模型已经可以采样出第一个 Token，供后面继续生成。",
+          "narration": "处理完输入，模型采样出回答的第一个 Token，「推荐」。",
           "phase": [
-            9150,
+            7420,
             9530
           ],
           "id": "S29.8",
           "frame": 1,
-          "estimatedSeconds": 9
+          "estimatedSeconds": 6
         },
         {
           "label": "读取已有缓存并追加新位置",
@@ -3766,52 +3902,51 @@ window.COURSE = {
           "estimatedSeconds": 11
         },
         {
-          "label": "跟踪在线请求经过接口和调度",
-          "narration": "在线时，用户消息沿橙色路径经过接口和调度，来到模型处理输入的地方。",
+          "label": "跟踪第 05 条经过接口和调度",
+          "narration": "第五条沿橙线进来，在接口后面的队列多等了一段，之后才到 GPU 处理输入。",
           "phase": [
             3500,
             7700
           ],
           "id": "S29.12",
           "frame": 3,
-          "estimatedSeconds": 10
+          "estimatedSeconds": 7
         },
         {
           "label": "跟踪 Decode 读取缓存",
-          "narration": "接下来生成回答时，模型沿紫色路径读出已有缓存，继续计算。",
+          "narration": "开始生成之后，Decode 每轮读缓存，算下一个 Token。",
           "phase": [
             7700,
             10000
           ],
           "id": "S29.13",
           "frame": 3,
-          "estimatedSeconds": 8
+          "estimatedSeconds": 6
         },
         {
           "label": "跟踪绿色回复路径",
-          "narration": "算出来的文字沿绿色路径返回应用，刚才的菜名和做法就是这么送回来的。",
+          "narration": "有了可以显示的文字，服务就沿绿线送回聊天窗口。",
           "phase": [
             10000,
             13600
           ],
           "id": "S29.14",
           "frame": 3,
-          "estimatedSeconds": 10
+          "estimatedSeconds": 5
         },
         {
-          "label": "回到排队和计算两个排查点",
-          "narration": "如果第五条比平时更晚收到回答，可以先分清多等的时间是在队列里，还是花在了 GPU 计算上。",
-          "focus": [
-            "调度",
-            "Prefill",
-            "Decode"
-          ],
+          "label": "回答第五条为何晚收到首字",
+          "narration": "第五条晚开始回答，多等的时间在队列里。两张卡各跑一份模型时，多出来的缓存预算让它一到就能开始算。",
           "id": "S29.15",
           "frame": 3,
-          "estimatedSeconds": 12
+          "estimatedSeconds": 10,
+          "phase": [
+            13600,
+            14650
+          ]
         }
       ],
-      "estimatedSeconds": 139,
+      "estimatedSeconds": 122,
       "transition": "读完后结束录制。",
       "demo": {
         "id": "05",
@@ -3819,6 +3954,12 @@ window.COURSE = {
         "reply": [
           "推荐做西红柿炒蛋。",
           "先炒鸡蛋，再炒西红柿，最后合炒。"
+        ],
+        "inputTokens": [
+          "推荐",
+          "一",
+          "道",
+          "晚餐"
         ]
       }
     }

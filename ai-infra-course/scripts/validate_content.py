@@ -7,6 +7,10 @@ from docx import Document
 from sync_content import ROOT, browser_payload, load_course
 
 data = load_course()
+opening = data['slides'][0]['demo']
+dinner = data['slides'][-1]['demo']
+assert opening['otherQuestions'][int(dinner['id']) - 2] == dinner['question']
+assert ''.join(dinner['inputTokens']) == dinner['question']
 steps = [step for slide in data['slides'] for step in slide['steps']]
 document = Document(ROOT.parent / 'AI_Infra_完整口播稿.docx')
 exports = {

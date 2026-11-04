@@ -33,9 +33,12 @@
     const gpuX=i=>1328+i*111;
     const y=535;
     let z=`<g data-opening-interval="0,16200" opacity="0">`;
-    z+=txt(100,383,'服务入口',29,C.muted)+txt(540,383,'等待队列',32,C.orange)+txt(1265,383,'GPU 1 · 正在生成',32,C.green)
+    z+=txt(100,383,'服务入口',29,C.muted)+txt(540,383,'等待队列',32,C.orange)+txt(1265,383,'GPU 1 · 执行中',32,C.green)
       +txt(1103,383,`${count-slots} 条`,25,C.orange,'text-anchor="end" data-opening-interval="4100,8600" opacity="0"')
-      +txt(1716,383,`${slots} 条`,25,C.green,'text-anchor="end" data-opening-show="1900"');
+      +txt(1103,383,`${count-slots-1} 条`,25,C.orange,'text-anchor="end" data-opening-show="9700"')
+      +txt(1716,383,`${slots} 条`,25,C.green,'text-anchor="end" data-opening-interval="2150,7100" opacity="0"')
+      +txt(1716,383,`${slots-1} 条`,25,C.green,'text-anchor="end" data-opening-interval="7100,9700" opacity="0"')
+      +txt(1716,383,`${slots} 条`,25,C.green,'text-anchor="end" data-opening-show="9700"');
     z+=path('M100 456H1160V535H1230',C.dim,2)+path('M207 535H540',C.dim,2);
     z+=dot(166,y,50,'#282c24')+txt(166,y+10,'接入',25,C.green,mid);
     z+=`<rect x="533" y="489" width="606" height="92" rx="10" fill="#1a1c19" stroke="${C.dim}"/>`;
@@ -48,17 +51,27 @@
       z+=motion(route,active?C.green:C.orange,start,duration,'dot','data-foundation-once');
       z+=request(i,x,y,active,`data-opening-route="${i}" data-active="${active}" data-opening-show="${start+duration}" data-end="${end}"`);
     }
-    z+=`<g data-opening-interval="4100,8600" opacity="0">${txt(540,641,`#05 「${window.COURSE.slides[28].demo.question}」正在等 GPU`,30,C.orange)}</g>`;
+    const dinner=window.COURSE.slides[28].demo;
+    z+=`<g data-opening-interval="4100,8600" opacity="0">${txt(540,641,`#${dinner.id} 「${dinner.question}」等待缓存`,30,C.orange)}</g>`;
+    z+=txt(1265,438,'本次可用缓存',23,C.muted);
+    for(let i=0;i<slots;i++){
+      const x=1470+i*65;
+      z+=`<rect x="${x}" y="417" width="56" height="23" fill="#30372e"/>`;
+      const filled=`<rect x="${x}" y="417" width="56" height="23" fill="${C.purple}"/>`;
+      const start=1520+i*140;
+      z+=i===0?`<g data-opening-interval="${start},7100" opacity="0">${filled}</g><g data-opening-show="9580">${filled}</g>`
+        :`<g data-opening-show="${start}">${filled}</g>`;
+    }
     z+=request(0,1660,737,true,`data-opening-shift="${gpuX(0)-1660},-202" data-start="7100" data-duration="950" data-end="16200"`);
     z+=txt(1660,801,'已完成',27,C.green,`${mid} data-opening-show="8050"`);
     z+=request(focus,gpuX(0),y,true,`data-opening-shift="${queueX(focus)-gpuX(0)},0" data-start="8600" data-duration="1100" data-end="16200"`);
-    z+=txt(540,641,'#05 离开队列，开始生成',30,C.green,'data-opening-show="9700"');
+    z+=txt(540,641,`#${dinner.id} 获得缓存，开始执行`,30,C.green,'data-opening-show="9700"');
     z+=path('M545 769H1270',C.dim,2);
     z+=`<g data-opening-show="6000">${path('M545 769H920',C.orange,5)}${txt(732,741,'排队',25,C.orange,mid)}${txt(545,818,'发送',23,C.muted,mid)}</g>`;
     z+=`<g data-opening-show="9800">${path('M920 769H1270',C.green,5)}${txt(1095,741,'开始计算后仍要等首字',25,C.green,mid)}${txt(920,818,'开始执行',23,C.muted,mid)}</g>`;
     z+=`<g data-opening-show="11800">${dot(1270,769,9,C.green)}${txt(1270,818,'首字出现',23,C.green,mid)}${txt(545,906,'从发出请求到首字出现，排队时间也算在内。',30,C.ink)}</g></g>`;
 
-    z+=`<g data-opening-show="16200">${txt(100,364,`同一批 ${count} 条请求 · 每张卡先接 ${slots} 条`,30,C.muted)}`;
+    z+=`<g data-opening-show="16200">${txt(100,364,`同一批 ${count} 条请求 · 此例每卡缓存够 ${slots} 条同时生成`,30,C.muted)}`;
     for(const devices of [1,2]){
       const x=devices===1?100:1010;
       const delay=devices===1?16500:19900;
@@ -71,13 +84,13 @@
           const index=gpu*slots+i;
           z+=request(index,gx+62+i*81,552,true,`data-opening-show="${delay+650+i*135}"`);
         }
-        z+=txt(gx+186,660,`GPU ${gpu+1}`,25,C.green,`${mid} ${mono}`);
+        z+=txt(gx+186,660,`GPU ${gpu+1} · 完整模型`,25,C.green,`${mid} ${mono}`);
       }
       z+=txt(x,735,`还要等待 · ${count-running} 条`,29,C.orange);
       for(let i=running;i<count;i++){
         z+=request(i,x+34+(i-running)*83,787,false,`data-opening-show="${delay+1230+(i-running)*90}"`);
       }
-      z+=txt(x,892,devices===1?'#05 要等一个位置空出来':'#05 第一批就能开始',29,devices===1?C.orange:C.green,`data-opening-show="${delay+2400}"`);
+      z+=txt(x,892,devices===1?`#${dinner.id} 等待缓存释放`:`#${dinner.id} 第一批就能开始`,29,devices===1?C.orange:C.green,`data-opening-show="${delay+2400}"`);
       z+='</g>';
     }
     z+=path('M949 405V914',C.dim)+txt(1010,950,'新增设备占用，也会增加运行开销。',27,C.muted,'data-opening-show="23700"');
@@ -85,7 +98,7 @@
   }
 
   function opening(s){
-    const {question,answer,followUp,otherQuestions,activeSlots}=window.COURSE.slides[0].demo;
+    const {question,answer,followUp,otherQuestions,cacheCapacity}=window.COURSE.slides[0].demo;
     const count=1+otherQuestions.length;
     const mono='class="foundation-mono"';
     const center='text-anchor="middle"';
@@ -143,10 +156,10 @@
       z+=motion([[580,711],[610,940],[1755,940]],C.orange,1608,1100,'dot','data-foundation-once');
     } else {
       const focus=Number(window.COURSE.slides[28].demo.id)-1;
-      z+=openingQueue(count,activeSlots,focus);
+      z+=openingQueue(count,cacheCapacity,focus);
     }
     const titles=['先问聊天机器人一个问题','聊天机器人开始回答','更多用户同时发问','排队、接班和增配 GPU'];
-    return shell('S01',s,titles[s],z,'opening',s===3?'同一模型、同一批请求。每卡接 4 条为示意，实际容量受模型、批次、序列长度、缓存与调度影响。':'聊天界面与回答为教学模拟。');
+    return shell('S01',s,titles[s],z,'opening',s===3?'紫色条示意缓存预算。实际占用随模型、序列长度和调度策略而变。':'聊天界面与回答为教学模拟。');
   }
 
   function mountOpening(root,s,{animate,previousStep}){
@@ -457,7 +470,7 @@
     lines.slice(0,visible).forEach((line,i)=>{
       const y=469+i*45;
       if(s===2&&i>=4){
-        z+=`<rect x="91" y="${y-31}" width="908" height="42" fill="${C.green}" opacity="0" data-code-focus="${i===4?'0,4500':i===5?'4500,9500':'9500,15500'}"/>`;
+        z+=`<rect x="91" y="${y-31}" width="908" height="42" fill="${C.green}" opacity="0" data-code-focus="${i===4?'0,1250':i===5?'1250,2200':'2200,3300'}"/>`;
       } else if(i===active) z+=`<rect x="91" y="${y-31}" width="908" height="42" fill="${C.green}" opacity=".08"/>`;
       z+=txt(118,y,line,27,i===active?C.green:C.ink,mono);
     });
@@ -466,9 +479,9 @@
       z+=path('M1082 558H1790',C.dim)+txt(1080,621,'2 × 1 + 1 × (−3) = −1',37,C.ink,`${mono} data-foundation-reveal="430"`);
     }
     if(s===2){
-      z+=txt(1080,699,'目标 1，平方误差为 4',29,C.muted,'data-foundation-reveal="1500"')+
-        txt(1080,768,'梯度 = [−8, −4]',34,C.orange,`${mono} data-foundation-reveal="5200"`)+
-        txt(1080,837,'更新后 w = [1.8, −2.6]',34,C.green,`${mono} data-foundation-reveal="10300"`);
+      z+=txt(1080,699,'前向结果 → 损失',29,C.muted,'data-foundation-reveal="660"')+
+        txt(1080,768,'autograd 自动求梯度',30,C.orange,'data-foundation-reveal="1430"')+
+        txt(1080,837,'用梯度更新参数 w',30,C.green,'data-foundation-reveal="2370"');
     }
     if(s===3){
       z+=txt(1080,719,'服务还要接收请求、安排执行、保留缓存。',28,C.muted);
@@ -482,7 +495,7 @@
       z+=chip(1160,390,360,330,C.green,'data-device="gpu0"')+matrix(1191,424,7,5,43,C.purple,'data-shard="full-model"');
       z+=txt(1340,783,'GPU 0',41,C.green,'text-anchor="middle"');
       for(let i=0;i<10;i++)z+=`<rect x="${1600+(i%2)*58}" y="${438+Math.floor(i/2)*43}" width="44" height="28" fill="${C.orange}" data-overflow="training-state"/>`;
-      z+=txt(1570,720,'放不下',30,C.orange)+txt(1070,896,'容量、计算时间，都可能成为限制。',33,C.muted);
+      z+=txt(1540,720,'训练状态装不下',27,C.orange)+txt(1070,896,'装得下，训练仍可能太慢',33,C.muted);
       z+=motion([[960,545],[1130,545]],C.orange,0,3200,'block','data-work="input"');
       return shell('S11',s,'单卡的<br>显存与算力',z,'single-gpu','多设备协作也会引入通信与同步开销。');
     }
@@ -505,7 +518,8 @@
     }else{
       z+=arrow(675,620,1190,620,C.orange)+txt(935,568,'微批次沿阶段推进',30,C.orange,'text-anchor="middle"');
       for(let i=0;i<4;i++)z+=motion([[150,680],[490,680],[740,620],[1100,620],[1380,680],[1740,680]],[C.orange,C.green,C.purple,C.sand][i],i*760,4800,'block',`data-work="microbatch-${i}"`);
-      z+=txt(330,928,'拆分模型阶段，让多个小批次流水前进。',31,C.muted);
+      z+=txt(330,928,'拆分模型阶段，让多个小批次流水前进。',28,C.muted);
+      z+=txt(1120,928,'FSDP：分片保存参数、梯度和优化器状态',26,C.purple,'data-foundation-reveal="6700"');
     }
     return shell('S11',s,s===1?'数据并行处理不同批次':s===2?'张量并行拆分层内计算':'流水线并行拆分模型阶段',z,'distributed','两张 GPU 为简化示意；DP、TP、PP 可结合使用，具体通信依实现而定。');
   }

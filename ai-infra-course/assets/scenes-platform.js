@@ -123,10 +123,26 @@
     }
     return z;
   }
+  function schedulingLayers() {
+    const layers=[
+      ['Kubernetes','Pod → 节点','为容器选运行位置，控制器维持服务副本',C.green],
+      ['Ray','Task / Actor → Worker','在集群里安排程序的分布式工作',C.purple],
+      ['推理引擎','请求 / Token → 本轮批次','在引擎内部决定 GPU 这一轮计算什么',C.orange],
+    ];
+    let z='';
+    for(const [i,[name,work,detail,color]] of layers.entries()){
+      const y=445+i*178;
+      z+=path(`M120 ${y+77}H1785`,C.line,1.5);
+      z+=dot(135,y-11,7,color)+t(170,y,name,38,color)+t(645,y,work,37,C.ink)+t(645,y+52,detail,27,C.muted);
+    }
+    return base('S25',3,'orchestration-scene',svg(z),heading('集群部署','三种调度各管什么？','从节点上的容器，到 GPU 上的一轮计算。'),
+      '一种组合部署示意。推理服务可按部署需要选择是否使用 Kubernetes 或 Ray。');
+  }
   function orchestration(s) {
+    if(s===3)return schedulingLayers();
     let z=nodeRack(532,493,'节点 0',s,0)+nodeRack(1183,493,'节点 1',s,1);
     z+=t(532,873,'计算资源分布在不同节点',28,C.muted);
-    if(s===1||s===3){
+    if(s===1){
       z+=path('M1024 324V400H760V490 M1024 400H1425V490',C.green,2,'stroke-dasharray="7 7"');
       z+=`<circle cx="1024" cy="292" r="44" fill="#1e261c" stroke="${C.green}" stroke-width="1.5"/>`;
       for(let i=0;i<6;i++){const a=i*Math.PI/3;z+=path(`M1024 292L${1024+Math.cos(a)*29} ${292+Math.sin(a)*29}`,C.green,2)}
@@ -147,8 +163,7 @@
       z+=t(110,520,s===0?'多个节点':'维持设定的',44,C.ink)+t(110,577,s===0?'组成集群':'副本数量',44,C.ink);
       z+=t(110,666,s===0?'节点可以是机器或计算实例。':'目标：两个副本保持运行。',26,C.muted);
     }
-    const title=s===3?'Kubernetes 与 Ray 组合部署':'集群里的容器和任务';
-    return base('S25',s,'orchestration-scene',svg(z),heading('集群部署',title,s===3?'Ray 可以运行在 Kubernetes 管理的容器里。':'节点提供运行容器和程序的资源。'));
+    return base('S25',s,'orchestration-scene',svg(z),heading('集群部署','集群里的容器和任务','节点提供运行容器和程序的资源。'));
   }
   function replica(x,y,label,color=C.green,sharded=false) {
     let z=chip(x,y,175,color,sharded?'分片':'MODEL');
@@ -196,7 +211,7 @@
     ];
     let z=path('M360 833H1710 M1694 823l16 10-16 10',C.line,2)+t(1710,882,'时间 →',26,C.muted,'text-anchor="end"');
     z+=at(5000,path('M1010 395V833',C.orange,1.5,'stroke-dasharray="7 8"')
-      +t(1010,382,'A 完成，腾出执行位置',28,C.orange,center));
+      +t(1010,382,'A 完成，释放缓存',28,C.orange,center));
     rows.forEach(({name,arrival,start,end},i)=>{
       const y=462+i*123,delay=450+i*720;
       z+=mono(142,y+12,name,42,i===2?C.orange:C.green)+t(202,y+10,'请求',25,C.muted);
@@ -208,7 +223,7 @@
         +t((start+end)/2,y+7,'执行',22,C.dark,center));
     });
     z+=at(5600,t(360,932,'C 已经到达，但 A 完成后它才开始执行。',30,C.ink));
-    return base('S27',3,'metrics-scene',svg(z),heading('推理性能','并发增加后，谁需要等？','假设设备有两个执行位置。'),
+    return base('S27',3,'metrics-scene',svg(z),heading('推理性能','并发增加后，谁需要等？','此例的缓存预算刚好够 A 和 B 同时生成。'),
       '时间线为教学示意。实际延迟和吞吐量需要按相同口径测量。');
   }
   function metrics(s) {
@@ -257,11 +272,13 @@
     for(let i=0;i<3;i++)z+=`<g opacity="${i<=n?1:.2}">${dot(xs[i],ys[i],i===n?10:6,C.green)}${mono(xs[i],ys[i]-28,String(loads[i].tps),33,C.green,center)}${t(xs[i],799,loads[i].name,25,C.muted,center)}</g>`;
     z+=path(`M${xs[n]} ${ys[n]+19}V756`,C.green,1.5,'stroke-dasharray="5 7"');
     }else{
-      z+=t(790,380,'高负载时，首 Token 在哪里耗时？',31,C.ink);
+      z+=t(790,380,'TTFT 从 180 ms 升到 1,300 ms',31,C.ink);
       z+=mono(790,460,'1,300 ms',56,C.orange)+t(1100,454,'从发送到首 Token',27,C.muted);
       z+=at(430,rect(790,528,670,62,C.orange)+t(815,567,'排队 950 ms',27,C.dark));
       z+=at(940,rect(1460,528,247,62,C.green)+t(1480,567,'其余 350 ms',25,C.dark));
-      z+=at(1080,t(790,659,'本例先查队列。设备忙不忙、模型算得快不快，要分别测。',26,C.muted));
+      z+=at(930,t(790,644,'排队占了近四分之三，先查请求为何进不来。',27,C.ink));
+      z+=at(1300,t(790,712,'核对可分配的 KV 块与每轮 Token 预算',26,C.purple));
+      z+=at(2460,t(790,772,'流量过大：限流 / 加副本       执行偏慢：分析内核耗时',26,C.green));
     }
     z+=t(806,848,'等待队列',26,s===3?C.orange:C.muted);
     for(let i=0;i<8;i++){
@@ -271,13 +288,9 @@
     }
     z+=t(1320,848,'显存占用',26,s===3?C.orange:C.muted)+rect(1320,884,380,33,'#2c3329')+rect(1320,884,380*d.mem/100,33,C.purple,`data-memory-percent="${d.mem}"`);
     z+=path('M1700 871V929',C.purple,2)+mono(1735,909,d.mem+'%',27,C.purple);
-    const stats=`<div class="p-load-state" data-load="${n}" data-concurrency="${d.n}"><span>${d.name}</span><strong>${d.n}<small>并发</small></strong><p>${s===0?'请求较少，设备仍有余量。':s===1?'吞吐提高，等待略有增加。':s===2?'吞吐趋平，队列明显变长。':'检查队列、显存和模型执行耗时。'}</p><dl><div><dt>TTFT</dt><dd data-metric="ttft">${d.ttft}<small>ms</small></dd></div><div><dt>TPOT</dt><dd data-metric="tpot">${d.tpot}<small>ms</small></dd></div></dl></div>`;
-    if(s===3){
-      z+=path('M825 960H1190 M1280 960H1675',C.orange,2)+t(1010,994,'队列 → 缓存',26,C.orange,center)+t(1470,994,'→ 执行耗时 / Profiling',26,C.orange,center);
-    }else{
-      if(d.q)z+=route('queue-pressure',[[721,904],[809,904]],C.orange,{duration:780,once:true});
-    }
-    return base('S28',s,'dashboard-scene',svg(z),heading('监控示例','并发对延迟和<br>吞吐量的影响','保持系统配置和请求长度不变，逐步增加并发。')+stats,s===3?'教学模拟数据；GPU 利用率提供忙碌线索，具体耗时需结合性能分析。':'教学模拟数据，三个点属于同一假想系统，不用于框架性能对比。');
+    const stats=`<div class="p-load-state" data-load="${n}" data-concurrency="${d.n}"><span>${d.name}</span><strong>${d.n}<small>并发</small></strong><p>${s===0?'用户反馈：开始回答变慢了。':s===1?'吞吐提高，等待略有增加。':s===2?'吞吐趋平，队列明显变长。':'拆开首 Token 前的时间。'}</p><dl><div><dt>TTFT</dt><dd data-metric="ttft">${d.ttft}<small>ms</small></dd></div><div><dt>TPOT</dt><dd data-metric="tpot">${d.tpot}<small>ms</small></dd></div></dl></div>`;
+    if(s<3&&d.q)z+=route('queue-pressure',[[721,904],[809,904]],C.orange,{duration:780,once:true});
+    return base('S28',s,'dashboard-scene',svg(z),heading('监控示例',s===3?'首 Token 前<br>时间花在哪？':'回答为何<br>开始得更慢？','同一模型、硬件和请求长度，逐步增加并发。')+stats,'教学模拟数据。左侧延迟指标从客户端计时，右侧队列和显存来自服务端。');
   }
   function journey(s) {
     if(s===3)return journeyAtlas();
@@ -296,7 +309,7 @@
       z+=rect(100,380,width,439,'#191e19','stroke="#424c40" rx="12"');
       z+=dot(131,421,6,C.orange)+t(155,429,'聊天机器人',25,C.ink)+path(`M100 455H${100+width}`);
       z+=rect(132,481,width-64,66,'#2d382b','rx="9"');
-      z+=t(155,524,request.question+'？',32)+mono(width+68,524,`#${request.id}`,25,C.orange,'text-anchor="end"');
+      z+=t(155,524,request.question,32)+mono(width+68,524,`#${request.id}`,25,C.orange,'text-anchor="end"');
       if(s===0)z+=at(330,t(155,639,'等待回答…',27,C.muted));
       else{
         z+=at(5200,t(155,632,request.reply[0],33,C.green));
@@ -310,25 +323,25 @@
       z+=at(1800,t(761,628,'输入和权限检查通过',26,C.green,center));
       z+=route('request-journey',[[610,513],[706,513]],C.orange,{duration:1350,delay:350,label:request.id,once:true});
       z+=route('queue-arrival',[[817,513],[967,513],[1044,513]],C.orange,{duration:1450,delay:2200,label:request.id,once:true});
-      z+=t(998,420,'等待队列',31,C.orange)+t(998,690,'GPU 1 · 生成中',30,C.green);
+      z+=t(998,420,'等待队列',31,C.orange)+t(998,690,'GPU 1 · 可用缓存已占满',30,C.green);
       z+=path('M991 551H1765',C.line,2)+chip(1238,790,450,C.green,'');
       for(let i=1;i<=count;i++){
-        const waiting=i>opening.activeSlots;
-        const x=waiting?1044+(i-opening.activeSlots-1)*93:1082+(i-1)*99;
+        const waiting=i>opening.cacheCapacity;
+        const x=waiting?1044+(i-opening.cacheCapacity-1)*93:1082+(i-1)*99;
         const y=waiting?513:790;
         const card=rect(x-33,y-23,66,46,waiting?'#523624':'#34472e',`rx="5" data-request-status="${waiting?'waiting':'running'}"`)
           +mono(x,y+8,String(i).padStart(2,'0'),24,i===focus?C.orange:C.ink,center);
         z+=at(i===focus?3570:0,card);
       }
-      z+=at(4050,t(998,618,`#${request.id} 要等一个执行位置空出来。`,27,C.muted));
+      z+=at(3960,t(998,618,`#${request.id} 等待缓存释放。`,27,C.orange));
     } else {
       const decoding=s===2;
       const cells=decoding?6:4;
       if(!decoding){
-        z+=t(100,409,'第五条离开队列',30,C.orange)+path('M100 456H779',C.line,2);
-        z+=route('request-journey',[[135,456],[810,456],[933,505]],C.orange,{duration:2200,label:request.id,once:true});
+        z+=t(100,409,'第一条完成，释放缓存',30,C.orange)+path('M100 456H779',C.line,2);
+        z+=route('request-journey',[[135,456],[810,456],[933,505]],C.orange,{duration:1650,delay:450,label:request.id,once:true});
         z+=t(100,556,'输入片段 · 分词示意',28,C.muted);
-        ['推荐','一','道','晚餐'].forEach((word,i)=>{
+        request.inputTokens.forEach((word,i)=>{
           const x=100+i*152;
           z+=at(2400+i*180,rect(x,591,134,65,'#2d2737')+t(x+67,634,word,30,C.purple,center));
           z+=route('prefill-input',[[x+67,665],[x+67,728],[866,728],[866,538]],C.purple,{duration:2000,delay:3200+i*175,once:true});
@@ -393,7 +406,8 @@
     z+=t(238,560,'训练（提前）',32,C.purple,center)+t(238,785,'产生模型参数',27,C.muted,center);
     z+=path('M296 662H448V585H916V540',C.purple,2,'stroke-dasharray="6 7"');
     z+=route('training-artifact',[[300,662],[448,662],[448,585],[916,585],[916,540]],C.purple,{duration:3500,label:'W',once:true});
-    return base('S29',3,'journey-scene journey-atlas-scene',svg(z),heading('课程回顾','十二条请求<br>同时到达','有多少条能立刻开始？<br>每个人要等多久？'),'紫色虚线表示模型参数的交付路径，橙色线表示在线请求。');
+    z+=at(13680,t(104,877,'单卡：缓存已满，第 05 条先排队',26,C.orange)+t(104,925,'双副本：第 05 条可立即执行',26,C.green));
+    return base('S29',3,'journey-scene journey-atlas-scene',svg(z),heading('课程回顾','第五条为何<br>晚收到回答？','「推荐一道晚餐」'),'紫色虚线表示模型参数的交付路径，橙色线表示在线请求。');
   }
   function mount(root,step,{animate=false}={}) {
     const animations=[];

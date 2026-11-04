@@ -10,19 +10,19 @@
   const flow=(points,color=C.orange,duration=3200,delay=0,radius=6,extra='')=>`<circle class="i-flow" r="${radius}" fill="${color}" data-route="${points}" data-duration="${duration}" data-delay="${delay}" opacity="0" ${extra}/>`;
   const svg=body=>`<svg class="inference-art" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${body}</svg>`;
   const titleNames={S12:'推理框架解决什么问题？',S13:'推理请求的执行流程',S14:'分词、嵌入与注意力',S15:'Prefill 与 Decode',S16:'KV Cache 怎样复用历史计算',S17:'KV Cache 占多少显存？',S18:'PagedAttention 怎样管理缓存？',S19:'缓存块的分配与回收',S20:'连续批处理怎样安排请求？',S21:'前缀缓存怎样命中？',S22:'量化减少数值占用'};
-  function frame(id,s,body,{layout='wide',title=titleNames[id],deck='',foot='',theme=''}={}) {
+  function frame(id,s,body,{layout='wide',title=titleNames[id],deck='',foot='',theme='',label}={}) {
     const p=window.COURSE.slides[+id.slice(1)-1];
     return `<section class="inference-scene inference-${layout} ${theme}" data-inference-slide="${id}" data-inference-step="${s}">
       <div class="inference-mast"><span>AI INFRA <i>/</i> 入门课</span><span>${String(p.chapter).padStart(2,'0')} — ${esc(window.COURSE.chapters[p.chapter-1])}</span><span>${id.slice(1)} / ${window.COURSE.slides.length}</span></div>
-      <div class="inference-heading"><span class="inference-kicker">${id==='S12'?'模型服务':id==='S20'?'连续批处理':id==='S18'||id==='S19'?'PagedAttention':id==='S21'?'Prefix Caching':id==='S22'?'数值表示':'推理过程'} <b>— ${esc(p.steps.find(beat=>beat.id===`${id}.${s}`).label)}</b></span><h1>${title}</h1>${deck?`<p>${deck}</p>`:''}</div>
+      <div class="inference-heading"><span class="inference-kicker">${id==='S12'?'模型服务':id==='S20'?'连续批处理':id==='S18'||id==='S19'?'PagedAttention':id==='S21'?'Prefix Caching':id==='S22'?'数值表示':'推理过程'} <b>— ${esc(label ?? p.steps.find(beat=>beat.id===`${id}.${s}`).label)}</b></span><h1>${title}</h1>${deck?`<p>${deck}</p>`:''}</div>
       ${svg(body)}${foot?`<div class="inference-foot">${foot}</div>`:''}
     </section>`;
   }
-  function processor(x,y,label='模型',color=C.green,scale=1) {
+  function processor(x,y,label='模型',color=C.green,scale=1,activeRows=4) {
     let z=`<g transform="translate(${x} ${y}) scale(${scale})">`;
     for(let i=0;i<9;i++)z+=line(`M${i*20+10} -16V-29 M${i*20+10} 196V209 M-16 ${i*20+10}H-29 M196 ${i*20+10}H209`,C.line,3);
     z+=r(-7,-7,194,194,'#1d241d');
-    for(let j=0;j<4;j++)for(let i=0;i<4;i++)z+=r(i*45+5,j*45+5,34,34,color,.46,`class="i-core"`);
+    for(let j=0;j<4;j++)for(let i=0;i<4;i++)z+=r(i*45+5,j*45+5,34,34,color,j<activeRows?.46:.12,j<activeRows?'class="i-core"':'');
     return z+t(90,254,label,29,color,'middle')+'</g>';
   }
   function token(x,y,label,color=C.green,extra='',w=90) {
@@ -33,27 +33,20 @@
   const fragments=['人工','智能','是','一类'];
   function engines(s) {
     const requests=[
-      {id:'A',prompt:opening().question,input:5,rounds:2,color:C.orange},
-      {id:'B',prompt:'总结这篇文章 ＋ 附文',input:28,rounds:4,color:C.purple},
-      {id:'C',prompt:window.COURSE.slides[28].demo.question,input:4,rounds:3,color:C.green},
+      {id:'A',prompt:opening().question,input:5,color:C.orange},
+      {id:'B',prompt:'总结这篇文章 ＋ 附文',input:28,color:C.purple},
+      {id:'C',prompt:window.COURSE.slides[28].demo.question,input:4,color:C.green},
     ];
-    let z=t(742,310,'客户端发来的问题',26,C.muted)+t(1218,310,'GPU 执行轮次 · 示意',26,C.muted);
-    for(let i=0;i<5;i++)z+=t(1291+i*100,361,i+1,23,C.muted,'middle');
-    requests.forEach(({id,prompt,input,rounds,color},i)=>{
-      const y=390+i*145, start=i===2?1:0;
+    let z=t(742,310,'客户端发来的问题',26,C.muted)+t(1218,310,'引擎里的请求状态 · 示意',26,C.muted);
+    requests.forEach(({id,prompt,input,color},i)=>{
+      const y=365+i*145, waiting=i===2;
       z+=t(742,y+39,id,28,color)+t(799,y+37,prompt,29)+t(799,y+79,`输入 ${input} 个 Token`,22,C.muted);
-      for(let j=0;j<5;j++){
-        const x=1250+j*100,active=j>=start&&j<start+rounds;
-        z+=r(x,y,82,56,C.line,.2);
-        if(active){
-          const label=j===start+rounds-1?'完成':'生成';
-          z+=at(s===0?500+j*950+i*140:0,r(x,y,82,56,color,.24)+t(x+41,y+37,label,22,color,'middle'));
-        }
-      }
-      if(s>=1){
-        z+=t(1218,y+92,'输入 KV',20,color);
+      z+=line(`M742 ${y+111}H1740`);
+      z+=at(s===0?500+i*330:0,t(1218,y+37,waiting?'等待分配预算':'正在生成',27,waiting?C.muted:color));
+      if(s>=1&&!waiting){
+        z+=t(1218,y+79,'输入 KV',20,color);
         for(let pos=0;pos<input;pos++){
-          z+=at(s===1?480+i*560+pos*36:0,r(1308+pos*15,y+74,11,18,color,.68));
+          z+=at(s===1?480+i*460+pos*26:0,r(1308+pos*15,y+63,11,18,color,.68));
         }
       }
     });
@@ -64,8 +57,8 @@
       z+=line('M748 824H1720',C.line)+t(748,881,'每轮挑选请求 → 保留各自的 KV → 调用模型计算',29,C.green);
     }
     return frame('S12',s,z,{layout:'hero',title:'推理引擎怎样<br>处理多个请求？',
-      deck:['三条请求各有自己的输入<br>和完成时间。','引擎安排每轮执行，<br>并分配请求的缓存。','选择工具时核对模型、<br>设备及所需功能。','每轮执行结束后，<br>各请求保留自己的状态。'][s],
-      foot:'输入长度与轮次为模拟。完整服务还要处理接入、鉴权、限流和监控。'});
+      deck:['同一份模型要处理<br>不同长度的请求。','引擎为正在生成的<br>请求保留缓存。','选择工具时核对模型、<br>设备及所需功能。','引擎在模型外维护<br>请求的执行状态。'][s],
+      foot:'输入长度与请求状态为模拟。完整服务还要处理接入、鉴权、限流和监控。'});
   }
 
   function components(s) {
@@ -139,7 +132,26 @@
       foot:'切分、ID、向量和权重均为教学模拟。实际模型的词表、维度和数值各不相同。'});
   }
 
-  function generation(s) {
+  function generationCost(s,beat) {
+    let z=t(125,414,'输入较长 · Prefill',37,C.purple)+t(125,698,'并发较低 · Decode',37,C.orange);
+    z+=line('M125 625H1770');
+    z+=t(540,409,'显存中的权重',23,C.muted)+r(540,441,225,59,C.purple,.28);
+    z+=t(540,693,'权重 + 历史 KV',23,C.muted)+r(540,725,225,59,C.purple,.28);
+    z+=line('M765 470H1118',C.purple,2);
+    for(let i=0;i<6;i++){
+      z+=r(562+i*32,460,21,22,C.purple,.8)+r(562+i*32,744,21,22,i<3?C.purple:C.orange,.8);
+      z+=flow(`765,470 986,470 1118,${423+i*21}`,C.purple,920,i*78,6,'data-inference-once');
+    }
+    z+=processor(1120,403,'多个位置并行计算',C.green,.74);
+    z+=at(850,t(1370,461,'读入的权重供多个位置使用',28,C.green)+t(1370,511,'矩阵运算多，算力压力大',28,C.ink));
+    z+=at(1560,line('M765 754H1118',C.orange,3)+processor(1120,690,'每条请求推进一个位置',C.orange,.74,1));
+    for(let i=0;i<3;i++)z+=flow('765,754 950,754 1118,754',C.orange,600,1590+i*600,8,'data-inference-once');
+    z+=at(2520,t(1370,745,'每轮都要搬权重和 KV',28,C.orange)+t(1370,795,'生成容易受带宽限制',28,C.ink));
+    z+=at(3900,t(125,961,'长输入 → 首个 Token 前的工作更多',29,C.purple)+t(978,961,'长输出 → 需要更多 Decode 轮次',29,C.orange));
+    return frame('S15',s,z,{label:beat.label,title:'长输入与长输出的开销',foot:'常见稠密模型的示意。瓶颈还随批大小、上下文长度、硬件和实现变化。'});
+  }
+  function generation(s,beat) {
+    if(s===3 && Number(beat.id.split('.')[1])>=11)return generationCost(s,beat);
     let z=t(130,395,'输入序列 · 分词示意',27,C.muted);
     ['什么','是','人工','智能','？'].forEach((word,i)=>z+=token(130+i*122,435,word,C.purple,`data-input-position="${i}"`,100));
     z+=line('M740 467H860',C.line,2);
@@ -206,7 +218,27 @@
     if(s===3)z+=at(1450,t(1640,618,'得到当前位置的',24,C.green,'middle')+t(1640,651,'注意力结果',24,C.green,'middle'));
     return frame('S16',s,z,{layout:'hero',title:'KV Cache<br>怎样复用历史？',deck:['因果模型中，历史位置的<br>K 和 V 可以留给后续生成。','不缓存时，<br>历史位置也会重新计算。','每层保存历史 K 和 V，<br>并追加新位置的 K 和 V。','新位置用 Query 和缓存中的<br>K、V 计算注意力。'][s],foot:'固定权重的常见因果 Transformer 示意。缓存减少历史表示重算，同时占用显存并产生读取。'});
   }
-  function cachegrow(s) {
+  function cacheCapacity(s,beat) {
+    const {model,layers,kvHeads,headDimension,bytesPerElement,shortTokens,longTokens,longRequests}=window.COURSE.slides[16].demo;
+    const bytesPerToken=2*layers*kvHeads*headDimension*bytesPerElement;
+    const shortMiB=bytesPerToken*shortTokens/2**20;
+    const longGiB=bytesPerToken*longTokens/2**30;
+    let z=t(130,415,`${model} · BF16 KV`,36,C.ink);
+    z+=t(130,479,`K 和 V × ${layers} 层 × ${kvHeads} 个 KV 头 × 每头 ${headDimension} 个数 × 每个数 ${bytesPerElement} 字节`,29,C.muted);
+    z+=at(180,t(130,540,`每个缓存 Token 占 ${bytesPerToken/1024} KiB`,35,C.purple));
+    const rows=[
+      [700,623,`1 条短对话 · ${shortTokens.toLocaleString('en-US')} Token`,`${shortMiB} MiB`,shortMiB/1024],
+      [1330,739,`1 条长对话 · ${longTokens.toLocaleString('en-US')} Token`,`${longGiB} GiB`,longGiB],
+      [2110,855,`${longRequests} 条同样长的对话`,`${longGiB*longRequests} GiB`,longGiB*longRequests],
+    ];
+    for(const [delay,y,name,amount,gib] of rows){
+      const fullWidth=1032, width=fullWidth*gib/(longGiB*longRequests);
+      z+=at(delay,t(130,y+37,name,29,C.ink)+r(665,y,fullWidth,53,C.line,.4)+r(665,y,width,53,C.purple,.85)+t(1730,y+36,amount,28,C.purple));
+    }
+    return frame('S17',s,z,{label:beat.label,title:'真实模型的 KV 显存估算',foot:'保留完整历史，按每条对话独立存储估算。权重、临时数据和块管理开销另计。'});
+  }
+  function cachegrow(s,beat) {
+    if(s===3 && Number(beat.id.split('.')[1])>=9)return cacheCapacity(s,beat);
     const rows=s<2?[['A',s===0?3:7,C.orange]]:[['A',7,C.orange],['B',5,C.green],['C',4,C.purple]];
     const budget=18;
     const used=rows.reduce((sum,row)=>sum+row[1],0);
@@ -246,13 +278,13 @@
     return frame('S17',s,z,{deck:'模型和存储格式固定时，缓存占用随保留的位置增加。',
       foot:'每格代表一个位置的 KV 存储量。实际大小还取决于层数、KV 头数、维度、精度及缓存策略。'});
   }
-  function physicalBlock(i,x,y,owner='',logical=null,extra='') {
-    const color=owner==='A'?C.orange:owner==='B'?C.green:C.line;
+  function physicalBlock(i,x,y,owner='',logical=null,extra='',filled=4) {
+    const color=owner==='A'?C.orange:owner==='B'?C.green:owner==='C'?C.purple:C.line;
     let z=`<g data-physical-block="${i}" data-owner="${owner||'free'}" data-free="${!owner}">`;
     z+=t(x+108,y-24,'P'+i,25,owner?color:C.muted,'middle');
     z+=line(`M${x} ${y+17}l108,-37 108,37 -108,37Z`,owner?color:C.line,1.5);
     z+=`<path d="M${x} ${y+17}v55l108,37 108,-37V${y+17} M${x+108} ${y+54}v55" fill="#1c211d" stroke="${owner?color:C.line}" stroke-width="1.5"/>`;
-    if(owner){z+=`<g ${extra} data-load-x="${160-x}" data-load-y="${433+(logical||0)*145-y}">`;for(let j=0;j<4;j++)z+=r(x+22+j*45,y+18,34,23,color,.85,`data-cache-cell="${j}"`);z+='</g>'}
+    if(owner){z+=`<g ${extra} data-load-x="${160-x}" data-load-y="${433+(logical||0)*145-y}">`;for(let j=0;j<4;j++)z+=r(x+22+j*45,y+18,34,23,color,j<filled?.85:.22,`data-cache-cell="${j}"`);z+='</g>'}
     z+=t(x+108,y+150,owner?`${owner} · L${logical}`:'空闲',26,owner?color:C.muted,'middle');
     return z+'</g>';
   }
@@ -299,11 +331,16 @@
     });
     for(let i=0;i<6;i++) {
       const entry=entries.find(a=>a[2]===i), x=965+(i%3)*282,y=470+Math.floor(i/3)*260;
-      const block=physicalBlock(i,x,y,entry?.[0],entry?.[1],entry?'class="i-physical-load"':'');
+      const filled=i===2&&s>0?4:2;
+      const block=physicalBlock(i,x,y,entry?.[0],entry?.[1],entry?'class="i-physical-load"':'',filled);
       if(s===3 && [2,5].includes(i)) {
         const releasedAt=i===2?2800:3500;
         z+=`<g data-inference-window="0,${releasedAt}" opacity="0">${physicalBlock(i,x,y,'A',i===2?0:1).replace(/data-(physical-block|owner|free)=/g,'data-previous-$1=')}</g>`;
-        z+=at(releasedAt,block+t(x+108,y+194,'A 的块已归还',24,C.orange,'middle'));
+        const released=block+t(x+108,y+194,'A 的块已归还',24,C.orange,'middle');
+        if(i===2){
+          z+=`<g data-inference-window="${releasedAt},4780" opacity="0">${released}</g>`;
+          z+=at(4780,physicalBlock(i,x,y,'C',0,'',2)+t(x+108,y+194,'已分配给 C',24,C.purple,'middle'));
+        }else z+=at(releasedAt,released);
       }else z+=block;
     }
     if(s===3){
@@ -311,8 +348,10 @@
         z+=`<g data-inference-window="0,${end}" opacity="0">${t(150,y,'A',40,C.orange)}${t(350,y,logical,35,C.orange)}
           ${line(`M425 ${y-12}H490`,C.orange,2)}${t(565,y,physical,35,C.orange)}</g>`;
       });
+      z+=at(4780,t(150,630,'C',40,C.purple)+t(350,630,'L0',35,C.purple)+line('M425 618H490',C.purple,2)+t(565,630,'P2',35,C.purple));
+      z+=flow('180,660 730,660 975,510 1637,505',C.purple,810,3900,8,'data-inference-once');
     }
-    const notes=['A · L0 → P2','A 增长，新增 L1 → P5','B · L0 → P1；A 的映射保留','A 无其他引用：P2、P5 回池；B 保留'];
+    const notes=['A 只领够用的空间','原块写满，A 再领一块','B 从同一个池领取空闲块','A 的空间可供后来的请求使用'];
     z+=at(s===3?3650:0,t(130,930,notes[s],31,s===3?C.green:C.orange));
     return frame('S19',s,z,{deck:'逻辑顺序不变，空间从同一个物理池申请。',foot:'回收以请求结束、且缓存块无其他引用或保留用途为前提。'});
   }
@@ -330,25 +369,39 @@
       z+=t(100,top+75,mode?'轮次之间，重新组织':'等本批结束，再加入',25,C.muted);
       for(let row=0;row<3;row++)for(let c=0;c<6;c++) {
         const name=rows[row][c],active=name&&c<current, x=x0+c*dx,y=top+row*61;
-        z+=r(x,y,w,43,name?color[name]:C.line,active?.56:name?.12:.07,`data-batch-mode="${mode?'continuous':'fixed'}" data-request="${name||'empty'}" data-round="${c+1}" data-status="${!name?'empty':c+1>current?'scheduled':c+1===current?'running':'complete'}"`);
-        if(name)z+=t(x+w/2,y+31,name,25,active?C.ink:C.muted,'middle');
+        const cell=r(x,y,w,43,name?color[name]:C.line,active?.56:name?.12:.07,`data-batch-mode="${mode?'continuous':'fixed'}" data-request="${name||'empty'}" data-round="${c+1}" data-status="${!name?'empty':c+1>current?'scheduled':c+1===current?'running':'complete'}"`)
+          +(name?t(x+w/2,y+31,name,25,active?C.ink:C.muted,'middle'):'');
+        z+=s===1&&mode&&name&&c>=1?at(2140,cell):cell;
       }
       if((mode===0||s>=1)&&s<3) {
-        z+=line(`M${x0+(current-1)*dx-12} ${top-15}V${top+173}`,mode?C.green:C.orange,2,'data-round-cursor="true"');
+        const cursor=line(`M${x0+(current-1)*dx-12} ${top-15}V${top+173}`,mode?C.green:C.orange,2,'data-round-cursor="true"');
+        z+=s===1&&mode?at(2140,cursor):cursor;
       }
     }
-    if(s===0)z+=t(100,655,'C 等待下一批',28,C.purple);
-    if(s===1)z+=t(100,655,'C 在第 2 轮加入',28,C.purple);
+    if(s===0)z+=at(480,t(100,655,'C 等待下一批',28,C.purple));
+    if(s===1)z+=at(2140,t(100,655,'C 在第 2 轮加入',28,C.purple));
     if(s===2)z+=t(100,655,'A 已完成退出',28,C.orange)+t(335,655,'B、C 继续执行',28,C.green);
     if(s===3)z+=t(100,655,'C：第 6 轮完成',28,C.purple)+t(100,934,'C：第 3 轮完成',28,C.purple)+t(1040,934,'按显存、Token 预算与延迟目标组批',27,C.muted);
     const live=s===0?['A','B']:s===1?['A','B','C']:s===2?['B','C']:[];
     const finished=s===2?['A']:s===3?['A','B','C']:[];
-    z+=t(570,612,s===0?'当前固定批次':'当前执行集合',25,C.muted);
+    if(live.length)z+=t(825,612,s===0?'当前固定批次':'当前执行集合',25,C.muted);
     live.forEach((name,i)=>{
       const x=825+i*150,enter=s===1&&name==='C';
-      z+=`<g data-live-request="${name}" data-live-status="running" ${enter?`data-batch-enter="true" data-from-x="${405-x}"`:''}>${r(x,622,107,62,color[name],.8)}${t(x+53,663,name,31,C.dark,'middle')}${line(`M${x} 686H${x+107}`,color[name],3,'class="i-batch-work"')}</g>`;
+      const request=`<g data-live-request="${name}" data-live-status="running" ${enter?`data-batch-enter="true" data-from-x="${405-x}"`:''}>${r(x,622,107,62,color[name],.8)}${t(x+53,663,name,31,C.dark,'middle')}${line(`M${x} 686H${x+107}`,color[name],3,'class="i-batch-work"')}</g>`;
+      z+=enter?at(1920,request):request;
     });
-    if(s===0)z+=token(405,622,'C',C.purple,'data-live-request="C" data-live-status="waiting"',76);
+    if(s===0)z+=at(480,token(405,622,'C',C.purple,'data-live-request="C" data-live-status="waiting"',76));
+    if(s===1){
+      let prefill=t(100,655,'C · Prefill',30,C.purple)+t(300,623,'输入',22,C.muted)+t(533,623,'写入 KV',22,C.purple);
+      prefill+=line('M387 653H522',C.line,2);
+      for(let i=0;i<3;i++){
+        prefill+=r(300+i*29,639,22,25,C.purple,.65);
+        prefill+=flow(`${330+i*28},652 460,652 ${532+i*29},652`,C.purple,760,80+i*170,6,'data-inference-once');
+        prefill+=at(730+i*170,r(533+i*29,639,22,25,C.purple,.85));
+      }
+      prefill+=at(1320,t(642,656,'首个输出',22,C.green));
+      z+=`<g data-inference-window="0,1930" data-prefill-request="C" opacity="0">${prefill}</g>`;
+    }
     if(s===1||s===2)z+=token(100,559,'C 仍在等',C.purple,'data-fixed-waiting="C"',145);
     if(s===3){
       z+=line(`M${x0-12} 414v183 M${x0-12} 700v183`,C.orange,2,'data-batch-scan opacity="0"');
@@ -359,7 +412,7 @@
       const x=s===3?1290+i*145:1580;
       z+=`<g data-live-request="${name}" data-live-status="complete" ${(s===2||name!=='A')?`data-batch-exit="true" data-from-x="${825+i*150-x}"`:''}>${r(x,622,100,62,color[name],.3)}${t(x+50,663,name,30,color[name],'middle')}</g>`;
     });
-    return frame('S20',s,z,{deck:'A 需要 2 轮，B 需要 4 轮；C 需要 2 轮，在第 2 轮前到达。',foot:'Decode 轮次示意，列宽不代表耗时。假设 C 的 Prefill 已完成且资源足够；固定批次也可提前返回完成请求。'});
+    return frame('S20',s,z,{deck:'剩余 Decode 轮次：A 两轮，B 四轮。C 在第一轮后到达，还需 Prefill 和两轮 Decode。',foot:'图中只编号 Decode 轮次。部分引擎可在同一次迭代中安排 Prefill 和 Decode。'});
   }
   function prefix(s) {
     let z='';
@@ -455,7 +508,7 @@
       if(delay)run(el,[{opacity:0},{opacity:1}],{duration:190,delay,fill:'backwards'});
     });
     root.querySelectorAll('.i-batch-work').forEach((el,i)=>run(el,[{strokeDasharray:'107',strokeDashoffset:'107'},{strokeDasharray:'107',strokeDashoffset:'0'}],{duration:2000,delay:i*120,iterations:Infinity,easing:'linear'}));
-    if(animate)root.querySelectorAll('[data-batch-enter],[data-batch-exit]').forEach((el,i)=>run(el,[{transform:`translate(${el.dataset.fromX}px,0)`,opacity:.4},{transform:'translate(0,0)',opacity:1}],{duration:1500,delay:i*180,easing:'cubic-bezier(.16,1,.3,1)',fill:'backwards'}));
+    if(animate)root.querySelectorAll('[data-batch-enter],[data-batch-exit]').forEach((el,i)=>run(el,[{transform:`translate(${el.dataset.fromX}px,0)`,opacity:.4},{transform:'translate(0,0)',opacity:1}],{duration:1500,delay:el.hasAttribute('data-batch-enter')?1920:i*180,easing:'cubic-bezier(.16,1,.3,1)',fill:'backwards'}));
     return animations;
   }
   window.CourseScenes ||= {};

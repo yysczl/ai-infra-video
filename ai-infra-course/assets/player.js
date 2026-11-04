@@ -114,7 +114,7 @@
     $('slide-id').textContent = slide.id;
     $('chapter-label').textContent = `${String(slide.chapter).padStart(2, '0')} / ${data.chapters[slide.chapter - 1]}`;
     const root = $('diagram');
-    root.innerHTML = scene ? scene.render(frame) : Diagrams.render(slide.kind, frame);
+    root.innerHTML = scene ? scene.render(frame, beat) : Diagrams.render(slide.kind, frame);
     root.setAttribute('aria-label', beat.label);
     if (scene) playScene(scene, root, frame, beat, animate);
     markFocus(root, beat.focus, animate);
