@@ -10,6 +10,11 @@ from docx.oxml.ns import qn
 from sync_content import sync
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT.parent
 D=sync()
+beats = (beat for slide in D['slides'] for beat in slide['steps'])
+cue_headings = {
+    beat['id']: f'{number:03d} · {beat["id"]} {beat["label"]}'
+    for number, beat in enumerate(beats, 1)
+}
 
 def mm(seconds):return f'{seconds//60:02d}:{seconds%60:02d}'
 
@@ -43,22 +48,19 @@ def docbase(title):
     field.append(foot.add_run('1')._r)
     foot._p.append(field)
     doc.add_paragraph(title,'Title')
-    doc.add_paragraph('推理请求背后的计算 缓存与服务','Subtitle')
+    doc.add_paragraph(D['subtitle'],'Subtitle')
     fontstyle(doc.styles['Subtitle'],14)
-    doc.add_paragraph('本课程面向有基本计算机知识、尚不了解 AI Infra 的观众。课程先介绍 GPU、计算软件和模型训练，再用一次聊天请求说明推理服务怎样安排计算、管理缓存和返回结果。')
+    doc.add_paragraph('本课程面向有基本计算机知识、尚不了解 AI Infra 的观众。课程从一次聊天请求出发，沿着模型的训练、部署和服务过程，讲清 GPU 怎样执行计算，系统怎样安排资源，以及怎样查出服务变慢的原因。')
     total=sum(p['estimatedSeconds'] for p in D['slides'])
     states=sum(len(p['steps']) for p in D['slides'])
     doc.add_paragraph(f'共 {len(D["chapters"])} 章 {len(D["slides"])} 页 {states} 个教学状态。预计录制时长 {mm(total)}。估算包含口播和图示停顿，实际时长以试读为准。')
     doc.add_paragraph('使用方式','Heading 1')
-    doc.add_paragraph('打开 HTML 课件即可看字幕朗读。每页从 .0 开始，读完一句按一次 Space。读完页末一句后再按 Space，直接进入下一页的第一句。')
-    doc.add_paragraph('每条台词上方是状态编号和画面提示。稿件按朗读顺序排列，编号可用于补录定位。Backspace 回到上一句，R 重播当前动作，P 暂停或继续动画。')
+    doc.add_paragraph('打开 HTML 课件即可跟随字幕朗读。每页从 .0 开始，读完当前段落按一次 Space。读完页末一段后再按 Space，直接进入下一页。')
+    doc.add_paragraph('每条台词上方是播放序号、补录锚点和画面提示。例如「049 · S04.1」是全课第 49 段，补录时用 #S04/1 定位。Backspace 回到上一句，R 重播当前动作，P 暂停或继续动画。')
     doc.add_paragraph('章节与预计时长','Heading 1')
     for i,ch in enumerate(D['chapters'],1):
         pages=[p for p in D['slides'] if p['chapter']==i]
-        page_range=pages[0]['id']
-        if len(pages)>1:
-            page_range+=f' 至 {pages[-1]["id"]}'
-        doc.add_paragraph(f'{i}  {ch}    {page_range}    {mm(sum(p["estimatedSeconds"] for p in pages))}')
+        doc.add_paragraph(f'{i}  {ch}    {len(pages)} 页    {mm(sum(p["estimatedSeconds"] for p in pages))}')
     return doc
 
 script = docbase('从零认识 AI Infra 完整口播稿')
@@ -70,7 +72,7 @@ for index, chapter in enumerate(D['chapters'], 1):
             continue
         script.add_paragraph(f'{slide["id"]}  {slide["title"]}', 'Heading 2')
         for beat in slide['steps']:
-            cue = script.add_paragraph(f'{beat["id"]}  {beat["label"]}', 'Caption')
+            cue = script.add_paragraph(cue_headings[beat['id']], 'Caption')
             cue.paragraph_format.keep_with_next = True
             cue.paragraph_format.space_before = Pt(4)
             cue.paragraph_format.space_after = Pt(1)
@@ -80,12 +82,19 @@ script.save(OUT / 'AI_Infra_完整口播稿.docx')
 
 md = [
     '# 从零认识 AI Infra 完整口播稿', '',
-    '每页第一句随画面显示。读完一句按 Space，页末也用 Space 进入下一页。稿件按朗读顺序排列，状态编号可用于补录定位。', '',
+    D['subtitle'], '',
+    '每页第一段随画面显示。读完当前段落按 Space，页末也用 Space 进入下一页。每段标题列出全课播放序号、补录锚点和画面提示。例如 `049 · S04.1` 是全课第 49 段，补录时用 `#S04/1` 定位。', '',
     '正文由 course.json 导出，与课件字幕一致。', '',
+    f'预计录制时长 {mm(sum(p["estimatedSeconds"] for p in D["slides"]))}，包含口播和画面停顿。', '',
 ]
+chapter = 0
 for slide in D['slides']:
-    md += [f'## {slide["id"]} {slide["title"]}', '', f'预计 {mm(slide["estimatedSeconds"])}', '']
+    if slide['chapter'] != chapter:
+        chapter = slide['chapter']
+        chapter_time = sum(p['estimatedSeconds'] for p in D['slides'] if p['chapter'] == chapter)
+        md += [f'## 第 {chapter} 章 {D["chapters"][chapter - 1]}', '', f'本章预计 {mm(chapter_time)}', '']
+    md += [f'### {slide["id"]} {slide["title"]}', '', f'预计 {mm(slide["estimatedSeconds"])}', '']
     for beat in slide['steps']:
-        md += [f'### {beat["id"]} {beat["label"]}', '', beat['narration'], '']
+        md += [f'#### {cue_headings[beat["id"]]}', '', beat['narration'], '']
 (ROOT / 'content/口播稿.md').write_text('\n'.join(md), encoding='utf-8')
 print('Built narration DOCX and Markdown. Total', mm(sum(slide['estimatedSeconds'] for slide in D['slides'])))

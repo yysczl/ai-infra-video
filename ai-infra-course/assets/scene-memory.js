@@ -32,7 +32,7 @@
   }
   function capacity(step) {
     return `<section class="memory-scene capacity-scene" data-scene="capacity" data-step="${step}">
-      <div class="memory-eyebrow"><span>AI INFRA <i>/</i> 入门课</span><span>02 — GPU 与计算软件</span><span>05 / ${window.COURSE.slides.length}</span></div>
+      <div class="memory-eyebrow"><span>AI INFRA <i>/</i> 入门课</span><span>02 — ${COURSE.chapters[1]}</span><span data-course-folio></span></div>
       <div class="memory-heading"><span class="memory-index">01 / 容量</span><h1>显存容量</h1><p>权重和运行数据都占用显存。</p></div>
       <div class="memory-budget"><strong>${step===0?'20':'32'}<small> / 32</small></strong><span>已占用 / 总容量 · 示意单位</span></div>
       <div class="memory-legend"><div><b style="background:${sage}"></b>模型权重 <em>20</em></div><div class="${step===0?'not-yet':''}"><b style="background:${orange}"></b>KV Cache <em>8</em></div><div class="${step===0?'not-yet':''}"><b style="background:${sand}"></b>临时空间 <em>4</em></div></div>
@@ -72,7 +72,7 @@
     z+=`<path class="memory-time-cursor" d="M700 778 V850" stroke="${orange}" stroke-width="3"/>`;
     z+=text(700,886,'等待数据',23,muted)+`<path d="M840 878 h50" stroke="#383e34" stroke-width="12"/>`+text(950,886,'执行计算',23,muted)+`<path d="M1090 878 h50" stroke="${sage}" stroke-width="12"/>`;
     return `<section class="memory-scene bandwidth-scene" data-scene="bandwidth" data-step="2">
-      <div class="memory-eyebrow"><span>AI INFRA <i>/</i> 入门课</span><span>02 — GPU 与计算软件</span><span>05 / ${window.COURSE.slides.length}</span></div>
+      <div class="memory-eyebrow"><span>AI INFRA <i>/</i> 入门课</span><span>02 — ${COURSE.chapters[1]}</span><span data-course-folio></span></div>
       <div class="memory-heading"><span class="memory-index">02 / 带宽</span><h1>显存带宽</h1><p>带宽 = 单位时间传输的数据量</p></div>
       <div class="memory-flow-note"><strong>数据已在显存里。</strong><p>数据送到计算单元前，<br>计算单元需要等待。</p><span>数据块等大 · 时间按“拍”计</span></div>
       <svg class="memory-visual" viewBox="0 0 1920 1080" aria-hidden="true"><g class="memory-bandwidth-camera">${z}</g></svg>
@@ -89,7 +89,7 @@
     for(let i=0;i<3;i++)b+=`<rect class="memory-reuse" data-reuse="${i}" x="${1415+i*65}" y="495" width="40" height="40" fill="${sage}"/>`;
     b+=text(1080,463,'减少外部读取',25,orange);
     return `<section class="memory-scene compare-scene" data-scene="compare" data-step="3">
-      <div class="memory-eyebrow"><span>AI INFRA <i>/</i> 入门课</span><span>02 — GPU 与计算软件</span><span>05 / ${window.COURSE.slides.length}</span></div>
+      <div class="memory-eyebrow"><span>AI INFRA <i>/</i> 入门课</span><span>02 — ${COURSE.chapters[1]}</span><span data-course-folio></span></div>
       <div class="memory-compare-heading"><span class="memory-index">03 / 对照</span><h1>显存容量不足与访存受限</h1></div>
       <div class="memory-problem first"><span>显存容量</span><h2>空间不足</h2><p>数据占用超过可用空间</p></div>
       <div class="memory-problem second"><span>显存带宽</span><h2>访存受限</h2><p>计算单元在等数据</p></div>

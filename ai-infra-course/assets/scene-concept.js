@@ -56,7 +56,7 @@
     const s=Math.max(0,Math.min(3,step)),b=beats[s];
     return `<section class="concept-scene" data-concept-step="${s}" aria-label="AI Infra 是什么：${b.focus}">
       <div class="concept-mast"><span>AI INFRA <i>/</i> 入门课</span><span>01 — AI Infra 解决什么问题</span></div>
-      <span class="concept-folio">02<span>/ ${window.COURSE.slides.length}</span></span>
+      <span class="concept-folio" data-course-folio></span>
       <div class="concept-copy">
         <div class="concept-section-index">案例 <span>—</span> 知识库问答</div>
         <h1><span>AI Infra</span><strong>是什么？</strong></h1>

@@ -11,9 +11,9 @@
   const svg=body=>`<svg class="inference-art" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${body}</svg>`;
   const titleNames={S12:'推理框架解决什么问题？',S13:'推理请求的执行流程',S14:'分词、嵌入与注意力',S15:'Prefill 与 Decode',S16:'KV Cache 怎样复用历史计算',S17:'KV Cache 占多少显存？',S18:'PagedAttention 怎样管理缓存？',S19:'缓存块的分配与回收',S20:'连续批处理怎样安排请求？',S21:'前缀缓存怎样命中？',S22:'量化减少数值占用'};
   function frame(id,s,body,{layout='wide',title=titleNames[id],deck='',foot='',theme='',label}={}) {
-    const p=window.COURSE.slides[+id.slice(1)-1];
+    const p=window.COURSE.slides.find(slide=>slide.id===id);
     return `<section class="inference-scene inference-${layout} ${theme}" data-inference-slide="${id}" data-inference-step="${s}">
-      <div class="inference-mast"><span>AI INFRA <i>/</i> 入门课</span><span>${String(p.chapter).padStart(2,'0')} — ${esc(window.COURSE.chapters[p.chapter-1])}</span><span>${id.slice(1)} / ${window.COURSE.slides.length}</span></div>
+      <div class="inference-mast"><span>AI INFRA <i>/</i> 入门课</span><span>${String(p.chapter).padStart(2,'0')} — ${esc(window.COURSE.chapters[p.chapter-1])}</span><span data-course-folio></span></div>
       <div class="inference-heading"><span class="inference-kicker">${id==='S12'?'模型服务':id==='S20'?'连续批处理':id==='S18'||id==='S19'?'PagedAttention':id==='S21'?'Prefix Caching':id==='S22'?'数值表示':'推理过程'} <b>— ${esc(label ?? p.steps.find(beat=>beat.id===`${id}.${s}`).label)}</b></span><h1>${title}</h1>${deck?`<p>${deck}</p>`:''}</div>
       ${svg(body)}${foot?`<div class="inference-foot">${foot}</div>`:''}
     </section>`;
@@ -29,13 +29,13 @@
     return `<g ${extra}>${r(x,y,w,64,color,.15)}${line(`M${x} ${y+64}H${x+w}`,color,3)}${t(x+w/2,y+42,label,28,color,'middle')}</g>`;
   }
   const at=(delay,body)=>`<g data-inference-at="${delay}">${body}</g>`;
-  const opening=()=>window.COURSE.slides[0].demo;
+  const opening=()=>window.COURSE.slides.find(slide=>slide.id==='S01').demo;
   const fragments=['人工','智能','是','一类'];
   function engines(s) {
     const requests=[
       {id:'A',prompt:opening().question,input:5,color:C.orange},
       {id:'B',prompt:'总结这篇文章 ＋ 附文',input:28,color:C.purple},
-      {id:'C',prompt:window.COURSE.slides[28].demo.question,input:4,color:C.green},
+      {id:'C',prompt:window.COURSE.slides.find(slide=>slide.id==='S29').demo.question,input:4,color:C.green},
     ];
     let z=t(742,310,'客户端发来的问题',26,C.muted)+t(1218,310,'引擎里的请求状态 · 示意',26,C.muted);
     requests.forEach(({id,prompt,input,color},i)=>{
@@ -92,7 +92,7 @@
       z+=t(799,905,'服务接口把输出传回聊天窗口',27,C.green);
     }
     return frame('S13',s,z,{deck:['收到来自聊天窗口的请求 A。','GPU 暂时忙，A 留在等待队列。','调度器把 A 交给 Worker，Worker 调用 GPU。','生成的文字沿服务接口返回。'][s],
-      foot:'职责分工示意。API Server、调度器和 Worker 可以在同一台机器上。'});
+      foot:'逻辑职责示意。不同引擎可在同一进程内实现，也可拆到不同进程或机器。'});
   }
 
   function tokens(s) {
@@ -219,7 +219,7 @@
     return frame('S16',s,z,{layout:'hero',title:'KV Cache<br>怎样复用历史？',deck:['因果模型中，历史位置的<br>K 和 V 可以留给后续生成。','不缓存时，<br>历史位置也会重新计算。','每层保存历史 K 和 V，<br>并追加新位置的 K 和 V。','新位置用 Query 和缓存中的<br>K、V 计算注意力。'][s],foot:'固定权重的常见因果 Transformer 示意。缓存减少历史表示重算，同时占用显存并产生读取。'});
   }
   function cacheCapacity(s,beat) {
-    const {model,layers,kvHeads,headDimension,bytesPerElement,shortTokens,longTokens,longRequests}=window.COURSE.slides[16].demo;
+    const {model,layers,kvHeads,headDimension,bytesPerElement,shortTokens,longTokens,longRequests}=window.COURSE.slides.find(slide=>slide.id==='S17').demo;
     const bytesPerToken=2*layers*kvHeads*headDimension*bytesPerElement;
     const shortMiB=bytesPerToken*shortTokens/2**20;
     const longGiB=bytesPerToken*longTokens/2**30;
@@ -319,7 +319,7 @@
       }
       z+=t(130,931,s===2?'块表记录每个逻辑块对应的物理块。':'按 L0、L1、L2 访问；物理位置是 P2、P5、P1。',31,s===3?C.ink:C.orange);
     }
-    return frame('S18',s,z,{deck:s<2?'已预留的空位暂时无法分配给其他请求。':'Token 的先后顺序保留，实际存放位置由映射表记录。',foot:'最后一个块可能有空余，映射表也需要维护；图中块大小与布局为示意。'});
+    return frame('S18',s,z,{deck:s<2?'已预留的空位暂时无法分配给其他请求。':'Token 的先后顺序保留，实际存放位置由映射表记录。',foot:'图中每块可放 4 个 Token 位置。分页用于组织设备内存中的块，块表记录地址。'});
   }
   function allocate(s) {
     const entries=s===0?[['A',0,2]]:s===1?[['A',0,2],['A',1,5]]:s===2?[['A',0,2],['A',1,5],['B',0,1]]:[['B',0,1]];
@@ -459,6 +459,7 @@
         z+=t(340,763,'质量 · 硬件支持 · 内核实现 · 转换开销',29,C.muted);
       }
       if(s===0)z+=t(340,793,'同一个权重的量化前后表示。',30,C.muted);
+      if(s===1)z+=t(340,841,'常见分组量化：一组值共享尺度，有些格式另存零点。',28,C.orange);
       if(s===2) {
         z+=processor(1220,740,'GPU 0',C.green,.65)+processor(1560,740,'GPU 1',C.green,.65);
         z+=line('M340 700V850H1175 M1265 850H1515',C.line,2);

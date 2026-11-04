@@ -1758,5 +1758,563 @@
     "sources": [
       "agent"
     ]
+  },
+  {
+    "name": "L1 / L2 Cache",
+    "fullName": "L1 / L2 Cache",
+    "chinese": "一级与二级缓存",
+    "grade": "B",
+    "domain": "计算硬件",
+    "definition": "常见 NVIDIA GPU 的 L1 靠近 SM，L2 可由多个 SM 使用。",
+    "problem": "减少设备内存往返",
+    "related": "SM、Global Memory",
+    "sources": [
+      "cuda_execution"
+    ]
+  },
+  {
+    "name": "Occupancy",
+    "fullName": "Occupancy",
+    "chinese": "占用率",
+    "grade": "B",
+    "domain": "计算硬件",
+    "definition": "一个 SM 上活跃 Warp 数相对硬件允许的最大数的比值。",
+    "problem": "估计可用来掩盖等待的并发量，需结合实测",
+    "related": "Warp、Register、Shared Memory",
+    "sources": [
+      "cuda_execution"
+    ]
+  },
+  {
+    "name": "CUDA Toolkit",
+    "fullName": "CUDA Toolkit",
+    "chinese": "CUDA 工具包",
+    "grade": "B",
+    "domain": "计算软件",
+    "definition": "NVIDIA 提供的编译器、库及开发工具等组件的集合。",
+    "problem": "开发、调试和构建 GPU 程序",
+    "related": "CUDA Runtime、GPU Driver",
+    "sources": [
+      "cuda_platform"
+    ]
+  },
+  {
+    "name": "GPU Driver",
+    "fullName": "GPU Driver",
+    "chinese": "GPU 驱动",
+    "grade": "B",
+    "domain": "计算软件",
+    "definition": "宿主操作系统用来管理 GPU 并提供设备接口的驱动软件。",
+    "problem": "建立程序与 GPU 的设备访问路径",
+    "related": "CUDA Runtime、Container Runtime",
+    "sources": [
+      "cuda_platform",
+      "gpu_container"
+    ]
+  },
+  {
+    "name": "Container Runtime",
+    "fullName": "Container Runtime",
+    "chinese": "容器运行时",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "按镜像和配置启动、隔离与管理容器进程的组件。",
+    "problem": "运行容器并接入设备资源",
+    "related": "Docker、Pod、GPU Driver",
+    "sources": [
+      "docker",
+      "gpu_container"
+    ]
+  },
+  {
+    "name": "Hugging Face Transformers",
+    "fullName": "Hugging Face Transformers",
+    "chinese": "Transformers 模型库",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "提供常用模型实现、权重和配置加载、分词及生成接口的软件库。",
+    "problem": "复用现有架构和预训练模型",
+    "related": "PyTorch、Tokenization、Inference Engine",
+    "sources": [
+      "generation"
+    ]
+  },
+  {
+    "name": "Data Loader",
+    "fullName": "Data Loader",
+    "chinese": "数据加载器",
+    "grade": "B",
+    "domain": "模型训练",
+    "definition": "按迭代顺序读取数据、组织批次并供给训练代码。",
+    "problem": "让训练稳定获得下一批样本",
+    "related": "Training、DP",
+    "sources": [
+      "dataloader"
+    ]
+  },
+  {
+    "name": "Checkpoint",
+    "fullName": "Checkpoint",
+    "chinese": "训练检查点",
+    "grade": "B",
+    "domain": "模型训练",
+    "definition": "某个训练步保存的状态，续训通常需要权重、优化器状态和进度。",
+    "problem": "在进程或节点故障后恢复",
+    "related": "Training、Distributed Training",
+    "sources": [
+      "checkpoint"
+    ]
+  },
+  {
+    "name": "Pre-training",
+    "fullName": "Pre-training",
+    "chinese": "预训练",
+    "grade": "B",
+    "domain": "模型训练",
+    "definition": "在大规模数据上学习通用参数的训练阶段。",
+    "problem": "得到可在下游任务复用的基础模型",
+    "related": "Training、SFT",
+    "sources": [
+      "llama3"
+    ]
+  },
+  {
+    "name": "SFT",
+    "fullName": "SFT",
+    "chinese": "监督微调",
+    "grade": "B",
+    "domain": "模型训练",
+    "definition": "在带示范输出的任务样本上继续训练。",
+    "problem": "让已有模型更适合目标任务或指令格式",
+    "related": "Pre-training、DPO",
+    "sources": [
+      "llama3"
+    ]
+  },
+  {
+    "name": "RLHF",
+    "fullName": "RLHF",
+    "chinese": "人类反馈强化学习",
+    "grade": "B",
+    "domain": "模型训练",
+    "definition": "一种常见流程是根据偏好训练奖励模型，再用强化学习优化生成模型。",
+    "problem": "让模型输出更接近人类偏好",
+    "related": "SFT、DPO",
+    "sources": [
+      "dpo"
+    ]
+  },
+  {
+    "name": "DPO",
+    "fullName": "DPO",
+    "chinese": "直接偏好优化",
+    "grade": "B",
+    "domain": "模型训练",
+    "definition": "用偏好样本对直接优化模型，常见做法使用参考模型。",
+    "problem": "用优选与劣选回答提供训练信号",
+    "related": "SFT、RLHF",
+    "sources": [
+      "dpo"
+    ]
+  },
+  {
+    "name": "QKV",
+    "fullName": "QKV",
+    "chinese": "查询、键和值",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "注意力使用 Q 与 K 计算匹配程度，并按权重汇总 V。",
+    "problem": "根据上下文更新当前位置的表示",
+    "related": "Attention、KV Cache",
+    "sources": [
+      "attention"
+    ]
+  },
+  {
+    "name": "Multi-Head Attention",
+    "fullName": "Multi-Head Attention",
+    "chinese": "多头注意力",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "多组注意力计算并行处理表示，再合并各头结果。",
+    "problem": "让模型用多组表示处理上下文",
+    "related": "QKV、GQA",
+    "sources": [
+      "attention",
+      "gqa"
+    ]
+  },
+  {
+    "name": "FFN",
+    "fullName": "FFN",
+    "chinese": "前馈网络",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "Transformer 块中逐位置应用的神经网络，常用多层感知机实现。",
+    "problem": "在位置之间完成注意力后，进一步变换各位置的向量",
+    "related": "Transformer、Attention",
+    "sources": [
+      "attention",
+      "llama3"
+    ]
+  },
+  {
+    "name": "Residual Connection",
+    "fullName": "Residual Connection",
+    "chinese": "残差连接",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "把变换的结果与输入相加的连接。",
+    "problem": "在深层网络中保留输入路径并帮助训练",
+    "related": "Transformer、Layer Normalization",
+    "sources": [
+      "attention"
+    ]
+  },
+  {
+    "name": "Layer Normalization",
+    "fullName": "Layer Normalization",
+    "chinese": "层归一化",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "按单个样本相应特征计算归一化，具体变体和所在位置因架构而异。",
+    "problem": "调整激活的尺度",
+    "related": "Transformer、Residual Connection",
+    "sources": [
+      "attention",
+      "llama3"
+    ]
+  },
+  {
+    "name": "RoPE",
+    "fullName": "RoPE",
+    "chinese": "旋转位置编码",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "根据位置旋转注意力的 Q 和 K 表示的一种方法。",
+    "problem": "让注意力感知位置信息",
+    "related": "Attention、Transformer",
+    "sources": [
+      "llama3"
+    ]
+  },
+  {
+    "name": "LM Head",
+    "fullName": "LM Head",
+    "chinese": "语言模型输出头",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "把隐藏向量映射为词表中各候选 Token 的分数。",
+    "problem": "从模型内部表示得到下一 Token 候选",
+    "related": "Logits、Sampling",
+    "sources": [
+      "generation",
+      "llama3"
+    ]
+  },
+  {
+    "name": "Logits",
+    "fullName": "Logits",
+    "chinese": "原始分数",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "模型在转成概率之前给出的候选分数。",
+    "problem": "比较候选或构造采样分布",
+    "related": "LM Head、Sampling",
+    "sources": [
+      "generation"
+    ]
+  },
+  {
+    "name": "Sampling",
+    "fullName": "Sampling",
+    "chinese": "采样",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "根据处理后的候选分布抽取下一个 Token。",
+    "problem": "控制生成时的选择方式",
+    "related": "Temperature、Top-k、Top-p",
+    "sources": [
+      "generation"
+    ]
+  },
+  {
+    "name": "Temperature",
+    "fullName": "Temperature",
+    "chinese": "温度",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "在转成概率前缩放分数差异，温度较低时分布通常更尖。",
+    "problem": "调节抽样集中程度",
+    "related": "Logits、Sampling",
+    "sources": [
+      "generation"
+    ]
+  },
+  {
+    "name": "Top-k",
+    "fullName": "Top-k",
+    "chinese": "前 k 候选筛选",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "只保留分数最高的 k 个候选。",
+    "problem": "限制采样候选数量",
+    "related": "Sampling、Top-p",
+    "sources": [
+      "generation"
+    ]
+  },
+  {
+    "name": "Top-p",
+    "fullName": "Top-p",
+    "chinese": "累计概率筛选",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "按概率由高到低选到累计概率达到阈值。",
+    "problem": "按分布动态限制采样范围",
+    "related": "Sampling、Top-k",
+    "sources": [
+      "generation"
+    ]
+  },
+  {
+    "name": "GQA",
+    "fullName": "GQA",
+    "chinese": "分组查询注意力",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "每一组查询头共用一个 KV 头。",
+    "problem": "减少要保存的 KV 数据",
+    "related": "MQA、KV Cache",
+    "sources": [
+      "gqa",
+      "llama3"
+    ]
+  },
+  {
+    "name": "MQA",
+    "fullName": "MQA",
+    "chinese": "多查询注意力",
+    "grade": "B",
+    "domain": "模型执行",
+    "definition": "所有查询头共用一个 KV 头。",
+    "problem": "减少设备上保存与搬运的 KV 数据",
+    "related": "GQA、KV Cache",
+    "sources": [
+      "gqa"
+    ]
+  },
+  {
+    "name": "Draft Model",
+    "fullName": "Draft Model",
+    "chinese": "草稿模型",
+    "grade": "B",
+    "domain": "推理优化",
+    "definition": "在一种投机解码方案中，用较低开销提议接下来的多个 Token。",
+    "problem": "提前提供可并行验证的候选",
+    "related": "Speculative Decoding、Target Model",
+    "sources": [
+      "spec"
+    ]
+  },
+  {
+    "name": "Target Model",
+    "fullName": "Target Model",
+    "chinese": "目标模型",
+    "grade": "B",
+    "domain": "推理优化",
+    "definition": "产生目标分布并验证提议的主模型。",
+    "problem": "决定接受范围并在需要时修正",
+    "related": "Speculative Decoding、Draft Model",
+    "sources": [
+      "spec"
+    ]
+  },
+  {
+    "name": "Model Registry",
+    "fullName": "Model Registry",
+    "chinese": "模型注册表",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "记录模型版本、产物位置和发布相关信息的目录。",
+    "problem": "追溯部署时选用的模型产物",
+    "related": "Model Loading、Rollback",
+    "sources": [
+      "registry"
+    ]
+  },
+  {
+    "name": "Model Loading",
+    "fullName": "Model Loading",
+    "chinese": "模型加载",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "把指定版本的模型配置和权重准备到执行环境的过程。",
+    "problem": "让服务副本获得模型执行所需的状态",
+    "related": "Model Registry、Warmup",
+    "sources": [
+      "registry",
+      "vllm"
+    ]
+  },
+  {
+    "name": "Warmup",
+    "fullName": "Warmup",
+    "chinese": "预热",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "在真实流量到达前运行受控输入，提前触发部分初始化。",
+    "problem": "减少首次执行的准备开销",
+    "related": "Model Loading、Health Check",
+    "sources": [
+      "probes",
+      "vllm"
+    ]
+  },
+  {
+    "name": "Health Check",
+    "fullName": "Health Check",
+    "chinese": "健康检查",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "探测实例的状态，可分别判断就绪和存活。",
+    "problem": "控制流量准入或判断是否需要重启",
+    "related": "Pod、Rolling Update",
+    "sources": [
+      "probes"
+    ]
+  },
+  {
+    "name": "Rolling Update",
+    "fullName": "Rolling Update",
+    "chinese": "滚动更新",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "逐步创建新副本并移除旧副本的一种发布方式。",
+    "problem": "在替换版本时维持服务能力",
+    "related": "Health Check、Rollback",
+    "sources": [
+      "rollout"
+    ]
+  },
+  {
+    "name": "Rollback",
+    "fullName": "Rollback",
+    "chinese": "回滚",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "把服务部署恢复到先前版本。",
+    "problem": "在新版本异常时恢复已知可用配置",
+    "related": "Rolling Update、Model Registry",
+    "sources": [
+      "rollout",
+      "registry"
+    ]
+  },
+  {
+    "name": "API Gateway",
+    "fullName": "API Gateway",
+    "chinese": "API 网关",
+    "grade": "B",
+    "domain": "服务部署",
+    "definition": "对外接入服务请求，可负责认证、限流和转发。",
+    "problem": "在调用下游前统一接入规则",
+    "related": "API、Load Balancing",
+    "sources": [
+      "http429"
+    ]
+  },
+  {
+    "name": "Observability",
+    "fullName": "Observability",
+    "chinese": "可观测性",
+    "grade": "B",
+    "domain": "运维",
+    "definition": "利用系统产生的观测信号理解其内部状态。",
+    "problem": "发现异常并定位故障段",
+    "related": "Metrics、Logs、Traces",
+    "sources": [
+      "otel"
+    ]
+  },
+  {
+    "name": "Metrics",
+    "fullName": "Metrics",
+    "chinese": "指标",
+    "grade": "B",
+    "domain": "运维",
+    "definition": "随时间采样或汇总的数值，比如排队长度或错误率。",
+    "problem": "识别何时异常及变化范围",
+    "related": "Latency、Logs",
+    "sources": [
+      "otel",
+      "metrics"
+    ]
+  },
+  {
+    "name": "Logs",
+    "fullName": "Logs",
+    "chinese": "日志",
+    "grade": "B",
+    "domain": "运维",
+    "definition": "在某个时间产生的事件记录，可以带上请求标识。",
+    "problem": "查到具体错误或状态变化",
+    "related": "Metrics、Traces",
+    "sources": [
+      "otel"
+    ]
+  },
+  {
+    "name": "Traces",
+    "fullName": "Traces",
+    "chinese": "请求追踪",
+    "grade": "B",
+    "domain": "运维",
+    "definition": "用关联的调用片段记录同一请求经过的组件和耗时。",
+    "problem": "找到请求路径上的慢环节",
+    "related": "Logs、Profiling",
+    "sources": [
+      "otel"
+    ]
+  },
+  {
+    "name": "P50 / P95 / P99",
+    "fullName": "P50 / P95 / P99",
+    "chinese": "延迟百分位数",
+    "grade": "B",
+    "domain": "运维",
+    "definition": "某个测量窗内延迟分布的第 50、95 和 99 百分位。",
+    "problem": "看到典型延迟和慢请求分布",
+    "related": "Latency、SLO",
+    "sources": [
+      "metrics",
+      "goodput"
+    ]
+  },
+  {
+    "name": "SLO",
+    "fullName": "SLO",
+    "chinese": "服务等级目标",
+    "grade": "B",
+    "domain": "运维",
+    "definition": "在给定时间窗或流量条件下，对服务表现设置可测量的目标。",
+    "problem": "明确要满足的延迟或可用性水平",
+    "related": "TTFT、Goodput",
+    "sources": [
+      "goodput"
+    ]
+  },
+  {
+    "name": "Goodput",
+    "fullName": "Goodput",
+    "chinese": "达标吞吐",
+    "grade": "B",
+    "domain": "运维",
+    "definition": "单位时间内满足规定成功和时延要求的请求数，需说明口径。",
+    "problem": "衡量真正达标的服务能力",
+    "related": "Throughput、SLO",
+    "sources": [
+      "goodput"
+    ]
   }
 ]

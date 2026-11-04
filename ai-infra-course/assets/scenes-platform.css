@@ -13,3 +13,7 @@
 .platform-scene .p-container-clone,.platform-scene .p-image-layer,.platform-scene .p-new-replica{transform-origin:0 0;transform-box:view-box}
 
 .platform-scene.journey-atlas-scene .p-heading{width:500px;right:auto}.platform-scene.journey-atlas-scene .p-heading h1{font-size:71px;line-height:1.23}.platform-scene.journey-atlas-scene .p-heading p{font-size:26px;line-height:1.7}
+
+.platform-scene.systems-scene { background: radial-gradient(ellipse at 64% 57%, #27302545, transparent 64%), #101113; }
+.platform-scene.systems-scene .p-heading h1 { font-size: 64px; margin-top: 0; }
+.platform-scene.systems-scene .p-footnote { bottom: 39px; }

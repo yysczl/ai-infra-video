@@ -2,13 +2,20 @@
   'use strict';
   const $ = id => document.getElementById(id);
   const data = window.COURSE;
+  const params = new URLSearchParams(location.search);
+  const autoplay = params.get('autoplay') === '1';
   const pilots = { S02: 'concept', S03: 'atlas', S05: 'memory' };
   const states = data.slides.map(() => 0);
+  const captionPositions = new Map();
   const sceneIds = data.slides.map(slide => slide.id);
   const numberOf = cue => Number(cue.id.split('.')[1]);
   const positionOf = (slide, number) => slide.steps.findIndex(cue => numberOf(cue) === number);
+  const currentCue = () => data.slides[page].steps[positionOf(data.slides[page], states[page])];
+  const captionsOf = cue => cue.captions || [cue.narration];
+  const captionPosition = cue => captionPositions.get(cue.id) ?? 0;
   let page = 0, mode = 'recording', previousMode = 'recording';
   let paused = false, animations = [], suspended = [], toastTimer;
+  let motionDuration = 0, captionClock;
 
   function resize() {
     const dock = mode === 'instructor' ? $('controls').getBoundingClientRect().height + 22 : 0;
@@ -16,6 +23,34 @@
     const width = Math.max(1, innerWidth - sidebar), height = Math.max(1, innerHeight - dock);
     const k = Math.min(width / 1920, height / 1080);
     $('stage').style.transform = `translate(${(width - 1920 * k) / 2}px,${(height - 1080 * k) / 2}px) scale(${k})`;
+  }
+
+  function stopCaptionClock() {
+    if (!captionClock) return;
+    captionClock.onfinish = null;
+    captionClock.cancel();
+    captionClock = null;
+  }
+
+  function renderCaption(slide, position) {
+    const cue = slide.steps[position];
+    const captions = captionsOf(cue), index = captionPosition(cue);
+    $('narration-caption').textContent = captions[index];
+    $('back').disabled = page === 0 && position === 0 && index === 0;
+    const atEnd = page === data.slides.length - 1 && position === slide.steps.length - 1 &&
+      index === captions.length - 1;
+    $('step').disabled = atEnd;
+
+    stopCaptionClock();
+    if (!autoplay || atEnd) return;
+    // Reserve time for the state's motion, then divide the reading time among its captions.
+    const minimum = 1000;
+    const total = captions.reduce((sum, text) => sum + text.length, 0);
+    const extra = Math.max(0, cue.estimatedSeconds * 1000 - motionDuration - minimum * captions.length);
+    const duration = minimum + (index === 0 ? motionDuration : 0) + extra * captions[index].length / total;
+    captionClock = $('stage').animate([{}, {}], {duration});
+    captionClock.onfinish = () => { if (!paused) step(1); };
+    if (paused) captionClock.pause();
   }
 
   function toast(message) {
@@ -27,15 +62,13 @@
   }
 
   function cancel() {
+    stopCaptionClock();
     for (const animation of animations) {
       animation.onfinish = null;
       animation.cancel();
     }
     animations = [];
     suspended = [];
-    paused = false;
-    $('pause').textContent = '暂停';
-    $('pause').classList.remove('active');
   }
 
   // Each cue can play a window of an existing scene. The clock shares the
@@ -62,7 +95,7 @@
         effect.pause();
         effect.currentTime = end;
       }
-      return;
+      return 0;
     }
 
     for (const effect of effects) effect.currentTime = start;
@@ -71,6 +104,7 @@
       clock.onfinish = freeze;
       animations.push(clock);
     }
+    return end - start;
   }
 
   function markFocus(root, focus, animate) {
@@ -106,6 +140,8 @@
     const frame = beat.frame ?? numberOf(beat);
     const scene = window.CourseScenes?.[slide.id] || window.PilotScenes?.[pilots[slide.id]];
     cancel();
+    if (!autoplay) paused = false;
+    updatePauseButton();
     $('stage').classList.toggle('pilot', !!scene);
     $('stage').dataset.slide = slide.id;
     $('stage').dataset.cue = beat.id;
@@ -116,18 +152,22 @@
     const root = $('diagram');
     root.innerHTML = scene ? scene.render(frame, beat) : Diagrams.render(slide.kind, frame);
     root.setAttribute('aria-label', beat.label);
-    if (scene) playScene(scene, root, frame, beat, animate);
+    const folio = root.querySelector('[data-course-folio]');
+    if (folio) folio.textContent = `${String(page + 1).padStart(2, '0')} / ${data.slides.length}`;
+    motionDuration = scene ? playScene(scene, root, frame, beat, animate) : 0;
     markFocus(root, beat.focus, animate);
+    if (animate && beat.focus) motionDuration = Math.max(320, motionDuration);
+    if (paused) suspendMotion();
 
-    $('narration-caption').textContent = beat.narration;
-    $('step-count').textContent = `第 ${s + 1} 句 / ${slide.steps.length}`;
+    renderCaption(slide, s);
+    $('step-count').textContent = `第 ${s + 1} 步 / ${slide.steps.length}`;
     $('step-label').textContent = beat.label;
     $('step-description').textContent = slide.subtitle;
     $('step-rail').replaceChildren(...slide.steps.map((cue, index) => {
       const button = document.createElement('button');
       button.classList.toggle('done', index <= s);
       button.title = cue.label;
-      button.setAttribute('aria-label', `第 ${index + 1} 句 ${cue.label}`);
+      button.setAttribute('aria-label', `第 ${index + 1} 步 ${cue.label}`);
       button.setAttribute('aria-current', index === s ? 'step' : 'false');
       button.dataset.step = numberOf(cue);
       return button;
@@ -135,15 +175,11 @@
     $('page-count').textContent = `${page + 1} / ${data.slides.length}`;
     $('prev').disabled = page === 0;
     $('next').disabled = page === data.slides.length - 1;
-    $('back').disabled = page === 0 && s === 0;
-    $('step').disabled = page === data.slides.length - 1 && s === slide.steps.length - 1;
     $('chapters').value = slide.chapter;
     $('outline-grid').querySelectorAll('[data-page]').forEach(button =>
       button.setAttribute('aria-current', +button.dataset.page === page ? 'page' : 'false'));
     $('progress').style.width = `${((page + (s + 1) / slide.steps.length) / data.slides.length) * 100}%`;
-    const active = [null, 0, 1, 2, 2, 3, 4][slide.chapter];
-    $('mini-map').innerHTML = ['硬件', '计算软件', '模型执行', '服务平台', '应用']
-      .map((label, i) => i === active ? `<b>${label}</b>` : label).join(' <span> / </span> ');
+    $('mini-map').textContent = data.chapters[slide.chapter - 1];
 
     const next = slide.steps[s + 1] || data.slides[page + 1]?.steps[0];
     $('notes-title').textContent = `${slide.title} · ${s + 1}/${slide.steps.length}`;
@@ -171,16 +207,34 @@
 
   function step(delta) {
     const slide = data.slides[page];
-    const next = slide.steps[positionOf(slide, states[page]) + delta];
-    if (next) {
-      states[page] = numberOf(next);
-    } else {
+    const position = positionOf(slide, states[page]), cue = slide.steps[position];
+    const index = captionPosition(cue) + delta;
+    if (index >= 0 && index < captionsOf(cue).length) {
+      captionPositions.set(cue.id, index);
+      renderCaption(slide, position);
+      return;
+    }
+
+    let next = slide.steps[position + delta];
+    if (!next) {
       const nextSlide = data.slides[page + delta];
       if (!nextSlide) return;
       page += delta;
-      states[page] = numberOf(delta > 0 ? nextSlide.steps[0] : nextSlide.steps.at(-1));
+      next = delta > 0 ? nextSlide.steps[0] : nextSlide.steps.at(-1);
     }
+    states[page] = numberOf(next);
+    captionPositions.set(next.id, delta > 0 ? 0 : captionsOf(next).length - 1);
     render(delta > 0);
+  }
+
+  function suspendMotion() {
+    suspended = animations.filter(animation => animation.playState === 'running');
+    suspended.forEach(animation => animation.pause());
+  }
+
+  function updatePauseButton() {
+    $('pause').textContent = paused ? '继续' : '暂停';
+    $('pause').classList.toggle('active', paused);
   }
 
   function pause() {
@@ -189,16 +243,20 @@
         if (animation.playState === 'paused') animation.play();
       });
       suspended = [];
+      captionClock?.play();
     } else {
-      suspended = animations.filter(animation => animation.playState === 'running');
-      suspended.forEach(animation => animation.pause());
+      suspendMotion();
+      captionClock?.pause();
     }
     paused = !paused;
-    $('pause').textContent = paused ? '继续' : '暂停';
-    $('pause').classList.toggle('active', paused);
+    updatePauseButton();
   }
 
-  function replay() { render(true); }
+  function replay() {
+    captionPositions.delete(currentCue().id);
+    paused = false;
+    render(true);
+  }
 
   function setMode(next) {
     mode = next;
@@ -273,6 +331,7 @@
     const button = event.target.closest('[data-step]');
     if (button && +button.dataset.step !== states[page]) {
       states[page] = +button.dataset.step;
+      captionPositions.delete(currentCue().id);
       render(false);
     }
   };
@@ -302,9 +361,9 @@
     const number = Number(match[2] || 0);
     page = index;
     states[page] = positionOf(data.slides[index], number) < 0 ? 0 : number;
+    captionPositions.delete(currentCue().id);
   }
   readHash();
-  const params = new URLSearchParams(location.search);
   const initialMode = params.get('mode');
   setMode(params.get('record') !== '1' && ['instructor', 'visual'].includes(initialMode) ? initialMode : 'recording');
   render(!location.hash || states[page] === 0);
@@ -312,7 +371,7 @@
   window.addEventListener('resize', resize);
   new ResizeObserver(resize).observe($('controls'));
   window.CoursePlayer = {
-    getState: () => ({page, slideId: sceneIds[page], step: states[page], position: positionOf(data.slides[page], states[page]), cueId: `${sceneIds[page]}.${states[page]}`, paused, mode, recording: mode === 'recording'}),
+    getState: () => ({page, slideId: sceneIds[page], step: states[page], position: positionOf(data.slides[page], states[page]), cueId: currentCue().id, captionIndex: captionPosition(currentCue()), paused, mode, recording: mode === 'recording'}),
     goto, step, render, states, pause, replay, record,
   };
 })();

@@ -50,7 +50,7 @@ body.recording #outline{display:none!important}
   font-weight: 550;
   line-height: 1.28;
   text-align: center;
-  text-wrap: balance;
+  white-space: nowrap;
   color: #f6f2e9;
 }
 #stage.pilot #diagram {

@@ -21,7 +21,7 @@
   }
   function shell(id,s,title,svg,kind='wide',note=''){
     const slide=window.COURSE.slides.find(p=>p.id===id);
-    return `<section class="foundation-scene foundation-${id.toLowerCase()} foundation-${kind}" data-step="${s}" data-foundation-slide="${id}" aria-label="${esc(slide.title+'：'+slide.steps.find(beat=>beat.id===`${id}.${s}`).label)}"><div class="foundation-mast"><span>AI INFRA <i>/</i> 入门课</span><span>${String(slide.chapter).padStart(2,'0')} — ${esc(window.COURSE.chapters[slide.chapter-1])}</span><span>${id.slice(1)} / ${window.COURSE.slides.length}</span></div><div class="foundation-heading"><span class="foundation-kicker">${esc(slide.steps.find(beat=>beat.id===`${id}.${s}`).label)}</span><h1>${title}</h1></div><svg class="foundation-art" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${svg}</svg>${note?`<p class="foundation-note">${note}</p>`:''}</section>`;
+    return `<section class="foundation-scene foundation-${id.toLowerCase()} foundation-${kind}" data-step="${s}" data-foundation-slide="${id}" aria-label="${esc(slide.title+'：'+slide.steps.find(beat=>beat.id===`${id}.${s}`).label)}"><div class="foundation-mast"><span>AI INFRA <i>/</i> 入门课</span><span>${String(slide.chapter).padStart(2,'0')} — ${esc(window.COURSE.chapters[slide.chapter-1])}</span><span data-course-folio></span></div><div class="foundation-heading"><span class="foundation-kicker">${esc(slide.steps.find(beat=>beat.id===`${id}.${s}`).label)}</span><h1>${title}</h1></div><svg class="foundation-art" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${svg}</svg>${note?`<p class="foundation-note">${note}</p>`:''}</section>`;
   }
   function openingQueue(count, slots, focus) {
     const mid='text-anchor="middle"';
@@ -51,7 +51,7 @@
       z+=motion(route,active?C.green:C.orange,start,duration,'dot','data-foundation-once');
       z+=request(i,x,y,active,`data-opening-route="${i}" data-active="${active}" data-opening-show="${start+duration}" data-end="${end}"`);
     }
-    const dinner=window.COURSE.slides[28].demo;
+    const dinner=window.COURSE.slides.find(slide=>slide.id==='S29').demo;
     z+=`<g data-opening-interval="4100,8600" opacity="0">${txt(540,641,`#${dinner.id} 「${dinner.question}」等待缓存`,30,C.orange)}</g>`;
     z+=txt(1265,438,'本次可用缓存',23,C.muted);
     for(let i=0;i<slots;i++){
@@ -98,7 +98,7 @@
   }
 
   function opening(s){
-    const {question,answer,followUp,otherQuestions,cacheCapacity}=window.COURSE.slides[0].demo;
+    const {question,answer,followUp,otherQuestions,cacheCapacity}=window.COURSE.slides.find(slide=>slide.id==='S01').demo;
     const count=1+otherQuestions.length;
     const mono='class="foundation-mono"';
     const center='text-anchor="middle"';
@@ -155,7 +155,7 @@
       });
       z+=motion([[580,711],[610,940],[1755,940]],C.orange,1608,1100,'dot','data-foundation-once');
     } else {
-      const focus=Number(window.COURSE.slides[28].demo.id)-1;
+      const focus=Number(window.COURSE.slides.find(slide=>slide.id==='S29').demo.id)-1;
       z+=openingQueue(count,cacheCapacity,focus);
     }
     const titles=['先问聊天机器人一个问题','聊天机器人开始回答','更多用户同时发问','排队、接班和增配 GPU'];
@@ -391,11 +391,15 @@
     ][s],29,s===0?C.muted:color);
     return z;
   }
-  function software(s){
-    const title=['GPU 怎样把两排数相加？','CUDA C++ 按线程分工','Triton 按一组位置分工','PyTorch 直接调用加法算子'][s];
+  function software(s, beat){
+    const title=['GPU 怎样把两排数相加？','CUDA C++ 按线程分工','Triton 语言按一组位置分工','PyTorch 直接调用加法算子'][s];
     const notes=['逐项加法示例。','代码省略显存准备；右图为执行示意。','代码省略导入与显存准备；右图为执行示意。',
       '加法与矩阵乘法是不同算子。矩阵乘法在 NVIDIA GPU 上可调用 cuBLAS，cuDNN 提供卷积等实现。'];
-    return shell('S07',s,title,vectorAddition(s),'software',notes[s]);
+    let art = vectorAddition(s);
+    if (beat.id === 'S07.2') {
+      art += txt(116, 903, '同名工具 NVIDIA Triton Inference Server 用于模型部署和推理服务', 24, C.purple);
+    }
+    return shell('S07',s,title,art,'software',notes[s]);
   }
   function bottleneck(s){
     let z='';

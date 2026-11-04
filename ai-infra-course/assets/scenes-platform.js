@@ -13,7 +13,7 @@
   const svg=body=>`<svg class="p-svg" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${body}</svg>`;
   function base(id,s,variant,body,copy='',footnote='') {
     const slide=window.COURSE.slides.find(p=>p.id===id);
-    return `<section class="platform-scene ${variant}" data-platform-page="${id}" data-platform-step="${s}"><div class="p-mast"><span>AI INFRA <i>/</i> 入门课</span><span>${String(slide.chapter).padStart(2,'0')} — ${esc(window.COURSE.chapters[slide.chapter-1])}</span><span>${id.slice(1)} / ${window.COURSE.slides.length}</span></div>${body}${copy}${footnote?`<div class="p-footnote">${footnote}</div>`:''}</section>`;
+    return `<section class="platform-scene ${variant}" data-platform-page="${id}" data-platform-step="${s}"><div class="p-mast"><span>AI INFRA <i>/</i> 入门课</span><span>${String(slide.chapter).padStart(2,'0')} — ${esc(window.COURSE.chapters[slide.chapter-1])}</span><span data-course-folio></span></div>${body}${copy}${footnote?`<div class="p-footnote">${footnote}</div>`:''}</section>`;
   }
   const heading=(over,title,sub='')=>`<div class="p-heading"><span>${over}</span><h1>${title}</h1>${sub?`<p>${sub}</p>`:''}</div>`;
   function chip(x,y,w=160,color=C.green,label='GPU') {
@@ -30,7 +30,7 @@
   }
   const at=(delay,body)=>`<g data-platform-at="${delay}">${body}</g>`;
   function api(s) {
-    const demo=window.COURSE.slides[0].demo;
+    const demo=window.COURSE.slides.find(slide=>slide.id==='S01').demo;
     let z=path('M635 466H893',C.orange,2.5);
     z+=`<circle cx="958" cy="466" r="62" fill="#1b211b" stroke="${C.orange}" stroke-width="2"/>`+mono(958,476,'API',32,C.orange,center);
     z+=path('M1020 466H1145',s>0?C.green:C.line,2.5);
@@ -123,23 +123,28 @@
     }
     return z;
   }
-  function schedulingLayers() {
+  function schedulingLayers(beat) {
     const layers=[
       ['Kubernetes','Pod → 节点','为容器选运行位置，控制器维持服务副本',C.green],
       ['Ray','Task / Actor → Worker','在集群里安排程序的分布式工作',C.purple],
       ['推理引擎','请求 / Token → 本轮批次','在引擎内部决定 GPU 这一轮计算什么',C.orange],
     ];
+    const active = ['S25.3', 'S25.8', 'S25.9'].indexOf(beat.id);
+    const objects = ['Pod', 'Task', 'Token'];
     let z='';
     for(const [i,[name,work,detail,color]] of layers.entries()){
       const y=445+i*178;
       z+=path(`M120 ${y+77}H1785`,C.line,1.5);
       z+=dot(135,y-11,7,color)+t(170,y,name,38,color)+t(645,y,work,37,C.ink)+t(645,y+52,detail,27,C.muted);
+      const from = 1195, to = 1680;
+      z += path(`M${from} ${y-20}H${to}`, i === active ? color : C.line, 2) + dot(to,y-20,7,color);
+      if (i === active) z += route('dispatch-'+objects[i],[[from,y-20],[to,y-20]],color,{duration:1050,label:objects[i],once:true});
     }
     return base('S25',3,'orchestration-scene',svg(z),heading('集群部署','三种调度各管什么？','从节点上的容器，到 GPU 上的一轮计算。'),
       '一种组合部署示意。推理服务可按部署需要选择是否使用 Kubernetes 或 Ray。');
   }
-  function orchestration(s) {
-    if(s===3)return schedulingLayers();
+  function orchestration(s,beat) {
+    if(s===3)return schedulingLayers(beat);
     let z=nodeRack(532,493,'节点 0',s,0)+nodeRack(1183,493,'节点 1',s,1);
     z+=t(532,873,'计算资源分布在不同节点',28,C.muted);
     if(s===1){
@@ -294,8 +299,8 @@
   }
   function journey(s) {
     if(s===3)return journeyAtlas();
-    const request=window.COURSE.slides[28].demo;
-    const opening=window.COURSE.slides[0].demo;
+    const request=window.COURSE.slides.find(slide=>slide.id==='S29').demo;
+    const opening=window.COURSE.slides.find(slide=>slide.id==='S01').demo;
     const count=1+opening.otherQuestions.length;
     const focus=Number(request.id);
     const captions=[
@@ -398,7 +403,7 @@
     z+=path('M1380 230H1730V270 M1730 340V423 M1730 482V491H1125V510',C.orange,2.5);
     z+=path('M1538 551H1795V230H1450',C.green,2);
     z+=t(1780,625,'流式返回',24,C.green,'text-anchor="end"');
-    z+=route('atlas-live-request',[[1380,230],[1730,230],[1730,491],[1125,491],[1125,510]],C.orange,{duration:4200,delay:3500,label:window.COURSE.slides[28].demo.id,once:true});
+    z+=route('atlas-live-request',[[1380,230],[1730,230],[1730,491],[1125,491],[1125,510]],C.orange,{duration:4200,delay:3500,label:window.COURSE.slides.find(slide=>slide.id==='S29').demo.id,once:true});
     z+=route('atlas-stream-back',[[1540,551],[1795,551],[1795,230],[1450,230]],C.green,{duration:3500,delay:10000,once:true});
     z+=route('atlas-kv-read',[[1250,600],[1465,600],[1465,550]],C.purple,{duration:2300,delay:7700,once:true});
     z+=`<circle cx="238" cy="662" r="58" fill="#25212b" stroke="${C.purple}" stroke-width="2"/>`;

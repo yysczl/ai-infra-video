@@ -7,8 +7,9 @@ from docx import Document
 from sync_content import ROOT, browser_payload, load_course
 
 data = load_course()
-opening = data['slides'][0]['demo']
-dinner = data['slides'][-1]['demo']
+slides_by_id = {slide['id']: slide for slide in data['slides']}
+opening = slides_by_id['S01']['demo']
+dinner = slides_by_id['S29']['demo']
 assert opening['otherQuestions'][int(dinner['id']) - 2] == dinner['question']
 assert ''.join(dinner['inputTokens']) == dinner['question']
 steps = [step for slide in data['slides'] for step in slide['steps']]
@@ -19,11 +20,12 @@ exports = {
 }
 for name, lines in exports.items():
     lines = [line for line in lines if line.strip()]
-    heading_pattern = r'^S\d{2}\.\d+  ' if name == 'Word' else r'^### S\d{2}\.\d+ '
+    prefix = '' if name == 'Word' else '#### '
+    heading_pattern = rf'^{prefix}\d{{3,}} · S\d{{2}}\.\d+ '
     actual = [(line, lines[i + 1]) for i, line in enumerate(lines) if re.match(heading_pattern, line)]
     expected = [
-        (f'{step["id"]}  {step["label"]}' if name == 'Word' else f'### {step["id"]} {step["label"]}', step['narration'])
-        for step in steps
+        (f'{prefix}{number:03d} · {step["id"]} {step["label"]}', step['narration'])
+        for number, step in enumerate(steps, 1)
     ]
     assert actual == expected, f'{name} narration or cue order differs from course.json'
 
