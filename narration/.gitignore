@@ -1,0 +1,8 @@
+/.venv/
+/.work/
+/models/
+/output/
+/runtime/
+/voice/
+/wheels/
+.DS_Store
